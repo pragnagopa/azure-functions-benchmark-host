@@ -18,7 +18,7 @@ using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 
 namespace GrpcAspNet
 {
-    internal class LanguageWorkerChannel
+    internal class LanguageWorkerChannel : IDisposable
     {
         private readonly TimeSpan processStartTimeout = TimeSpan.FromSeconds(40);
         private readonly TimeSpan workerInitTimeout = TimeSpan.FromSeconds(30);
@@ -67,17 +67,17 @@ namespace GrpcAspNet
 
         internal void StartProcess()
         {
+            string clientPath = Environment.GetEnvironmentVariable("GrcpClient");
             try
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo()
                 {
                     FileName = "dotnet",
-                    Arguments = $"C:\\pgopa\\grpcTest\\TestClient.dll {_serverUri.ToString()} {_workerId}"
+                    Arguments = $"{clientPath} {_serverUri.ToString()} {_workerId}"
                 };
                 _process = new Process();
                 _process.StartInfo = startInfo;
-                // TODO: create start info
-                //_process.Start();
+                _process.Start();
             }
             catch (Exception ex)
             {
@@ -110,6 +110,11 @@ namespace GrpcAspNet
         private void SendStreamingMessage(StreamingMessage msg)
         {
             _eventManager.Publish(new OutboundEvent(_workerId, msg));
+        }
+
+        public void Dispose()
+        {
+            _process.Dispose();
         }
     }
 }
