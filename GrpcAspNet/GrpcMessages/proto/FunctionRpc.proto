@@ -1,0 +1,66 @@
+﻿syntax = "proto3";
+// protobuf vscode extension: https://marketplace.visualstudio.com/items?itemName=zxh404.vscode-proto3
+
+option java_multiple_files = true;
+option java_package = "com.microsoft.azure.functions.rpc.messages";
+option java_outer_classname = "FunctionProto";
+option csharp_namespace = "TestGrpc.Messages";
+option go_package ="github.com/Azure/azure-functions-go-worker/internal/rpc";
+
+package AzureFunctionsRpcMessages;
+
+// Interface exported by the server.
+service FunctionRpc {
+ rpc EventStream (stream StreamingMessage) returns (stream StreamingMessage) {}
+}
+
+message StreamingMessage {
+  // Used to identify message between host and worker
+  string request_id = 1;
+
+  // Payload of the message
+  oneof content {
+    // Worker initiates stream
+    StartStream start_stream = 20; 
+
+    // Host requests a given invocation
+    InvocationRequest invocation_request = 4;
+
+    // Worker responds to a given invocation
+    InvocationResponse invocation_response = 5;
+  }
+}
+
+// Worker sends the host information identifying itself
+message StartStream {
+  // id of the worker
+  string worker_id = 2;
+}
+
+// Host requests worker to invoke a Function
+message InvocationRequest {
+  // Unique id for each invocation
+  string invocation_id = 1;
+
+  // Unique id for each Function
+  string function_id = 2;
+}
+
+
+// Worker responds with status of Invocation
+message InvocationResponse {
+  // Unique id for invocation
+  string invocation_id = 1;
+
+  // Status of the invocation (success/failure/canceled)
+  string result = 3;
+}
+
+
+
+
+
+
+
+
+

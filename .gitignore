@@ -1,0 +1,5 @@
+/GrpcAspNet/.vs/*
+/GrpcAspNet/GrpcAspNet/obj/*
+/GrpcAspNet/GrpcAspNet/bin/*
+/GrpcAspNet/*/bin/Debug/*
+/GrpcAspNet/*/obj/*

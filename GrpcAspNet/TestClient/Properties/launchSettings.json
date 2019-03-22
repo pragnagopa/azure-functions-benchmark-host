@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TestClient": {
+      "commandName": "Project",
+      "commandLineArgs": "http://localhost:10828/ 74c5eb4e-4fde-48dd-8036-fc353761847d"
+    }
+  }
+}
