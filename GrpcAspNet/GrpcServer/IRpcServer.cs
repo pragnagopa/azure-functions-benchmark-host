@@ -15,6 +15,8 @@ namespace GrpcServer
         /// </summary>
         Uri Uri { get; }
 
+        string CSharpUri { get; }
+
         /// <summary>
         /// Starts a server which will listen for rpc connections
         /// </summary>

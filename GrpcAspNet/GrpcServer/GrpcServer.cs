@@ -29,6 +29,8 @@ namespace GrpcServer
 
         public Uri Uri => new Uri($"http://localhost:{_server.Ports.First().BoundPort}");
 
+        public string CSharpUri => $"localhost:{_server.Ports.First().BoundPort}";
+
         public Task StartAsync()
         {
             _server.Start();

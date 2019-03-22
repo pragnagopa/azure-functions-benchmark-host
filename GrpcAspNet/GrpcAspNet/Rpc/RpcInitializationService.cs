@@ -17,12 +17,17 @@ namespace GrpcAspNet
     {
         private readonly IRpcServer _rpcServer;
         private readonly IScriptEventManager _eventManager;
+        private readonly IFunctionDispatcher _functionDispatcher;
+        private LanguageWorkerChannel _languageWorkerChannel;
 
-        public RpcInitializationService(IRpcServer rpcServer, IScriptEventManager eventManager)
+        public RpcInitializationService(IRpcServer rpcServer, IFunctionDispatcher functionDispatcher, IScriptEventManager eventManager)
         {
             _rpcServer = rpcServer;
             _eventManager = eventManager;
+            _functionDispatcher = functionDispatcher;
         }
+
+        public LanguageWorkerChannel WorkerChannel => _languageWorkerChannel;
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -50,7 +55,8 @@ namespace GrpcAspNet
         internal Task InitializeChannelsAsync()
         {
             string workerId = Guid.NewGuid().ToString();
-            LanguageWorkerChannel languageWorkerChannel = new LanguageWorkerChannel(workerId, _eventManager, _rpcServer.Uri);
+            _languageWorkerChannel = new LanguageWorkerChannel(workerId, _eventManager, _rpcServer.CSharpUri);
+            _functionDispatcher.AddWorkerChannel(_languageWorkerChannel);
             return Task.CompletedTask;
         }
     }

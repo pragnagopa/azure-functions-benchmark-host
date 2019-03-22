@@ -34,6 +34,7 @@ namespace GrpcAspNet
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+            services.AddSingleton<IFunctionDispatcher, FunctionDispatcher>();
             services.AddSingleton<IScriptEventManager, ScriptEventManager>();
             services.AddSingleton<IHostedService, RpcInitializationService>();
             services.AddSingleton<FunctionRpc.FunctionRpcBase, FunctionRpcService>();

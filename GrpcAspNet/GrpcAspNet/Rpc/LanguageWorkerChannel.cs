@@ -18,11 +18,10 @@ using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 
 namespace GrpcAspNet
 {
-    internal class LanguageWorkerChannel : IDisposable
+    public class LanguageWorkerChannel : IDisposable
     {
         private readonly TimeSpan processStartTimeout = TimeSpan.FromSeconds(40);
         private readonly TimeSpan workerInitTimeout = TimeSpan.FromSeconds(30);
-        private readonly string _rootScriptPath;
         private readonly IScriptEventManager _eventManager;
 
         private string _workerId;
@@ -32,7 +31,7 @@ namespace GrpcAspNet
         private ConcurrentDictionary<string, ScriptInvocationContext> _executingInvocations = new ConcurrentDictionary<string, ScriptInvocationContext>();
         private List<IDisposable> _inputLinks = new List<IDisposable>();
         private List<IDisposable> _eventSubscriptions = new List<IDisposable>();
-        private Uri _serverUri;
+        private string _serverUri;
 
         private static object _functionLoadResponseLock = new object();
 
@@ -44,9 +43,9 @@ namespace GrpcAspNet
         internal LanguageWorkerChannel(
            string workerId,
            IScriptEventManager eventManager,
-           Uri serverUri)
+           string serverUri)
         {
-            _workerId = "74c5eb4e-4fde-48dd-8036-fc353761847d";
+            _workerId = workerId;
             _eventManager = eventManager;
             _serverUri = serverUri;
             _inboundWorkerEvents = _eventManager.OfType<InboundEvent>()
