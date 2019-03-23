@@ -16,6 +16,10 @@ namespace TestClient
             Channel channel = new Channel(args[0], ChannelCredentials.Insecure);
             var client = new FunctionRpcClient(new FunctionRpc.FunctionRpcClient(channel), args[1]);
             client.RpcStream();
+            client.RpcStream1();
+            client.RpcStream2();
+            client.RpcStream3();
+            client.RpcStream4();
 
             while (true) { }
         }

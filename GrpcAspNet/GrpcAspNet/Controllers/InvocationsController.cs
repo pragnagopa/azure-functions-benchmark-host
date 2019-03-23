@@ -47,7 +47,7 @@ namespace GrpcAspNet.Controllers
                 InvocationId = Guid.NewGuid().ToString(),
                 ResultSource = new TaskCompletionSource<string>()
             };
-            _languageWorkerChannel.SendInvocationRequest(invocationContext);
+            _languageWorkerChannel.SendInvocationRequest(invocationContext, id.ToString());
             return invocationContext.ResultSource.Task;
             //return $"{id}-succeeed-{invocationContext.InvocationId}";
         }

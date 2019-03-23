@@ -10,7 +10,7 @@ namespace GrpcMessages.Events
 {
     public class OutboundEvent : RpcEvent
     {
-        public OutboundEvent(string workerId, StreamingMessage message) : base(workerId, message, MessageOrigin.Host)
+        public OutboundEvent(string workerId, StreamingMessage message, string eventStreamId = null) : base(workerId, message, eventStreamId, MessageOrigin.Host)
         {
         }
     }

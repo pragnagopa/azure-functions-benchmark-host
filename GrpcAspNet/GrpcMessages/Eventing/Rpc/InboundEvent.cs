@@ -7,7 +7,7 @@ namespace GrpcMessages.Events
 {
     public class InboundEvent : RpcEvent
     {
-        public InboundEvent(string workerId, StreamingMessage message) : base(workerId, message, MessageOrigin.Worker)
+        public InboundEvent(string workerId, StreamingMessage message, string eventStreamId = "0") : base(workerId, message, eventStreamId, MessageOrigin.Worker)
         {
         }
     }

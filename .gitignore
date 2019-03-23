@@ -6,3 +6,5 @@
 /GrpcAspNet/GrpcMessages/bin/*
 /GrpcAspNet/GrpcServer/bin/*
 /GrpcAspNet/TestClient/bin/*
+/GrpcAspNet/GrpcAspNet/Properties/PublishProfiles/*
+/GrpcAspNet/GrpcAspNet/Properties/PublishProfiles/pgopaGrpcAspNetBigPlan - Web Deploy.pubxml.user

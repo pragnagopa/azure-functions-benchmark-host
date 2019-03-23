@@ -32,21 +32,32 @@ namespace TestGrpc.Messages {
             "LC5BenVyZUZ1bmN0aW9uc1JwY01lc3NhZ2VzLkludm9jYXRpb25SZXF1ZXN0",
             "SAASTAoTaW52b2NhdGlvbl9yZXNwb25zZRgFIAEoCzItLkF6dXJlRnVuY3Rp",
             "b25zUnBjTWVzc2FnZXMuSW52b2NhdGlvblJlc3BvbnNlSABCCQoHY29udGVu",
-            "dCIgCgtTdGFydFN0cmVhbRIRCgl3b3JrZXJfaWQYAiABKAkiPwoRSW52b2Nh",
-            "dGlvblJlcXVlc3QSFQoNaW52b2NhdGlvbl9pZBgBIAEoCRITCgtmdW5jdGlv",
-            "bl9pZBgCIAEoCSI7ChJJbnZvY2F0aW9uUmVzcG9uc2USFQoNaW52b2NhdGlv",
-            "bl9pZBgBIAEoCRIOCgZyZXN1bHQYAyABKAkyfAoLRnVuY3Rpb25ScGMSbQoL",
-            "RXZlbnRTdHJlYW0SKy5BenVyZUZ1bmN0aW9uc1JwY01lc3NhZ2VzLlN0cmVh",
-            "bWluZ01lc3NhZ2UaKy5BenVyZUZ1bmN0aW9uc1JwY01lc3NhZ2VzLlN0cmVh",
-            "bWluZ01lc3NhZ2UiACgBMAFCigEKKmNvbS5taWNyb3NvZnQuYXp1cmUuZnVu",
-            "Y3Rpb25zLnJwYy5tZXNzYWdlc0INRnVuY3Rpb25Qcm90b1ABWjdnaXRodWIu",
-            "Y29tL0F6dXJlL2F6dXJlLWZ1bmN0aW9ucy1nby13b3JrZXIvaW50ZXJuYWwv",
-            "cnBjqgIRVGVzdEdycGMuTWVzc2FnZXNiBnByb3RvMw=="));
+            "dCI5CgtTdGFydFN0cmVhbRIRCgl3b3JrZXJfaWQYAiABKAkSFwoPZXZlbnRf",
+            "c3RyZWFtX2lkGAMgASgJIj8KEUludm9jYXRpb25SZXF1ZXN0EhUKDWludm9j",
+            "YXRpb25faWQYASABKAkSEwoLZnVuY3Rpb25faWQYAiABKAkiOwoSSW52b2Nh",
+            "dGlvblJlc3BvbnNlEhUKDWludm9jYXRpb25faWQYASABKAkSDgoGcmVzdWx0",
+            "GAMgASgJMrwECgtGdW5jdGlvblJwYxJtCgtFdmVudFN0cmVhbRIrLkF6dXJl",
+            "RnVuY3Rpb25zUnBjTWVzc2FnZXMuU3RyZWFtaW5nTWVzc2FnZRorLkF6dXJl",
+            "RnVuY3Rpb25zUnBjTWVzc2FnZXMuU3RyZWFtaW5nTWVzc2FnZSIAKAEwARJu",
+            "CgxFdmVudFN0cmVhbTESKy5BenVyZUZ1bmN0aW9uc1JwY01lc3NhZ2VzLlN0",
+            "cmVhbWluZ01lc3NhZ2UaKy5BenVyZUZ1bmN0aW9uc1JwY01lc3NhZ2VzLlN0",
+            "cmVhbWluZ01lc3NhZ2UiACgBMAESbgoMRXZlbnRTdHJlYW0yEisuQXp1cmVG",
+            "dW5jdGlvbnNScGNNZXNzYWdlcy5TdHJlYW1pbmdNZXNzYWdlGisuQXp1cmVG",
+            "dW5jdGlvbnNScGNNZXNzYWdlcy5TdHJlYW1pbmdNZXNzYWdlIgAoATABEm4K",
+            "DEV2ZW50U3RyZWFtMxIrLkF6dXJlRnVuY3Rpb25zUnBjTWVzc2FnZXMuU3Ry",
+            "ZWFtaW5nTWVzc2FnZRorLkF6dXJlRnVuY3Rpb25zUnBjTWVzc2FnZXMuU3Ry",
+            "ZWFtaW5nTWVzc2FnZSIAKAEwARJuCgxFdmVudFN0cmVhbTQSKy5BenVyZUZ1",
+            "bmN0aW9uc1JwY01lc3NhZ2VzLlN0cmVhbWluZ01lc3NhZ2UaKy5BenVyZUZ1",
+            "bmN0aW9uc1JwY01lc3NhZ2VzLlN0cmVhbWluZ01lc3NhZ2UiACgBMAFCigEK",
+            "KmNvbS5taWNyb3NvZnQuYXp1cmUuZnVuY3Rpb25zLnJwYy5tZXNzYWdlc0IN",
+            "RnVuY3Rpb25Qcm90b1ABWjdnaXRodWIuY29tL0F6dXJlL2F6dXJlLWZ1bmN0",
+            "aW9ucy1nby13b3JrZXIvaW50ZXJuYWwvcnBjqgIRVGVzdEdycGMuTWVzc2Fn",
+            "ZXNiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::TestGrpc.Messages.StreamingMessage), global::TestGrpc.Messages.StreamingMessage.Parser, new[]{ "RequestId", "StartStream", "InvocationRequest", "InvocationResponse" }, new[]{ "Content" }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::TestGrpc.Messages.StartStream), global::TestGrpc.Messages.StartStream.Parser, new[]{ "WorkerId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::TestGrpc.Messages.StartStream), global::TestGrpc.Messages.StartStream.Parser, new[]{ "WorkerId", "EventStreamId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::TestGrpc.Messages.InvocationRequest), global::TestGrpc.Messages.InvocationRequest.Parser, new[]{ "InvocationId", "FunctionId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::TestGrpc.Messages.InvocationResponse), global::TestGrpc.Messages.InvocationResponse.Parser, new[]{ "InvocationId", "Result" }, null, null, null)
           }));
@@ -367,6 +378,7 @@ namespace TestGrpc.Messages {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public StartStream(StartStream other) : this() {
       workerId_ = other.workerId_;
+      eventStreamId_ = other.eventStreamId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -389,6 +401,17 @@ namespace TestGrpc.Messages {
       }
     }
 
+    /// <summary>Field number for the "event_stream_id" field.</summary>
+    public const int EventStreamIdFieldNumber = 3;
+    private string eventStreamId_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string EventStreamId {
+      get { return eventStreamId_; }
+      set {
+        eventStreamId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as StartStream);
@@ -403,6 +426,7 @@ namespace TestGrpc.Messages {
         return true;
       }
       if (WorkerId != other.WorkerId) return false;
+      if (EventStreamId != other.EventStreamId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -410,6 +434,7 @@ namespace TestGrpc.Messages {
     public override int GetHashCode() {
       int hash = 1;
       if (WorkerId.Length != 0) hash ^= WorkerId.GetHashCode();
+      if (EventStreamId.Length != 0) hash ^= EventStreamId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -427,6 +452,10 @@ namespace TestGrpc.Messages {
         output.WriteRawTag(18);
         output.WriteString(WorkerId);
       }
+      if (EventStreamId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(EventStreamId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -437,6 +466,9 @@ namespace TestGrpc.Messages {
       int size = 0;
       if (WorkerId.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(WorkerId);
+      }
+      if (EventStreamId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(EventStreamId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -452,6 +484,9 @@ namespace TestGrpc.Messages {
       if (other.WorkerId.Length != 0) {
         WorkerId = other.WorkerId;
       }
+      if (other.EventStreamId.Length != 0) {
+        EventStreamId = other.EventStreamId;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -465,6 +500,10 @@ namespace TestGrpc.Messages {
             break;
           case 18: {
             WorkerId = input.ReadString();
+            break;
+          }
+          case 26: {
+            EventStreamId = input.ReadString();
             break;
           }
         }

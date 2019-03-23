@@ -84,7 +84,7 @@ namespace GrpcAspNet
                 throw new Exception($"Failed to start Language Worker Channel for language", ex);
             }
         }
-        internal void SendInvocationRequest(ScriptInvocationContext context)
+        internal void SendInvocationRequest(ScriptInvocationContext context, string eventStreamId)
         {
             InvocationRequest invocationRequest = new InvocationRequest()
             {
@@ -96,7 +96,7 @@ namespace GrpcAspNet
             SendStreamingMessage(new StreamingMessage
             {
                 InvocationRequest = invocationRequest
-            });
+            }, eventStreamId);
         }
 
         internal void InvokeResponse(InvocationResponse invokeResponse)
@@ -107,9 +107,9 @@ namespace GrpcAspNet
             }
         }
 
-        private void SendStreamingMessage(StreamingMessage msg)
+        private void SendStreamingMessage(StreamingMessage msg, string eventStreamId)
         {
-            _eventManager.Publish(new OutboundEvent(_workerId, msg));
+            _eventManager.Publish(new OutboundEvent(_workerId, msg, eventStreamId));
         }
 
         public void Dispose()

@@ -12,6 +12,10 @@ package AzureFunctionsRpcMessages;
 // Interface exported by the server.
 service FunctionRpc {
  rpc EventStream (stream StreamingMessage) returns (stream StreamingMessage) {}
+ rpc EventStream1 (stream StreamingMessage) returns (stream StreamingMessage) {}
+ rpc EventStream2 (stream StreamingMessage) returns (stream StreamingMessage) {}
+ rpc EventStream3 (stream StreamingMessage) returns (stream StreamingMessage) {}
+ rpc EventStream4 (stream StreamingMessage) returns (stream StreamingMessage) {}
 }
 
 message StreamingMessage {
@@ -35,6 +39,8 @@ message StreamingMessage {
 message StartStream {
   // id of the worker
   string worker_id = 2;
+
+string event_stream_id = 3;
 }
 
 // Host requests worker to invoke a Function
