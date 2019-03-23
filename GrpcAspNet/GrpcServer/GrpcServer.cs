@@ -23,13 +23,13 @@ namespace GrpcServer
             _server = new Server(grpcChannelOptions)
             {
                 Services = { FunctionRpc.BindService(serviceImpl) },
-                Ports = { new ServerPort("localhost", ServerPort.PickUnused, ServerCredentials.Insecure) }
+                Ports = { new ServerPort("127.0.0.1", ServerPort.PickUnused, ServerCredentials.Insecure) }
             };
         }
 
-        public Uri Uri => new Uri($"http://localhost:{_server.Ports.First().BoundPort}");
+        public Uri Uri => new Uri($"http://127.0.0.1:{_server.Ports.First().BoundPort}");
 
-        public string CSharpUri => $"localhost:{_server.Ports.First().BoundPort}";
+        public string CSharpUri => $"127.0.0.1:{_server.Ports.First().BoundPort}";
 
         public Task StartAsync()
         {

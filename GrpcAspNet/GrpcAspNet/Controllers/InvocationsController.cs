@@ -35,7 +35,7 @@ namespace GrpcAspNet.Controllers
 
         // GET: api/Invocations/5
         [HttpGet("{id}", Name = "Get")]
-        public async Task<string> Get(int id)
+        public Task<string> Get(int id)
         {
             if (_languageWorkerChannel == null)
             {
@@ -48,8 +48,8 @@ namespace GrpcAspNet.Controllers
                 ResultSource = new TaskCompletionSource<string>()
             };
             _languageWorkerChannel.SendInvocationRequest(invocationContext);
-            var result = await invocationContext.ResultSource.Task;
-            return $"{id}-succeeed-{invocationContext.InvocationId}";
+            return invocationContext.ResultSource.Task;
+            //return $"{id}-succeeed-{invocationContext.InvocationId}";
         }
 
         // POST: api/Invocations
