@@ -7,18 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GrpcAspNet
+namespace GrpcMessages.Events
 {
-    public class ScriptEvent
+    public static class EventSources
     {
-        public ScriptEvent(string name, string source)
-        {
-            Name = name;
-            Source = source;
-        }
-
-        public string Name { get; }
-
-        public string Source { get; }
+        public const string ScriptFiles = "ScriptFiles";
+        public const string Rpc = "Rpc";
+        public const string Worker = "Worker";
+        public const string WorkerProcess = "WorkerProcess";
     }
 }

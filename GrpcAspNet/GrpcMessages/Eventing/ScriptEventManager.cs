@@ -4,7 +4,7 @@
 using System;
 using System.Reactive.Subjects;
 
-namespace GrpcAspNet
+namespace GrpcMessages.Events
 {
     public sealed class ScriptEventManager : IScriptEventManager, IDisposable
     {

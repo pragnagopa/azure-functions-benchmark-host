@@ -3,7 +3,7 @@
 
 using TestGrpc.Messages;
 
-namespace GrpcAspNet
+namespace GrpcMessages.Events
 {
     public class RpcEvent : ScriptEvent
     {

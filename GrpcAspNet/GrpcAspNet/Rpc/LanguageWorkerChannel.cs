@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Logging;
 using TestGrpc.Messages;
+using GrpcMessages.Events;
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 
 namespace GrpcAspNet

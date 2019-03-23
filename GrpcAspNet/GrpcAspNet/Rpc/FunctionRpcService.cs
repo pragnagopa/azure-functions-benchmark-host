@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
 using TestGrpc.Messages;
+using GrpcMessages.Events;
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 
 namespace GrpcAspNet
@@ -20,16 +21,18 @@ namespace GrpcAspNet
         private IAsyncStreamReader<StreamingMessage> _requestStream;
         private IServerStreamWriter<StreamingMessage> _responseStream;
         private IScriptEventManager _eventManager;
+        IDictionary<string, IDisposable> outboundEventSubscriptions = new Dictionary<string, IDisposable>();
+
         public FunctionRpcService(IScriptEventManager scriptEventManager)
         {
             _eventManager = scriptEventManager;
+            Environment.SetEnvironmentVariable("GRPC_EXPERIMENTAL_DISABLE_FLOW_CONTROL", "1");
+            Environment.SetEnvironmentVariable("GRPC_CLIENT_CHANNEL_BACKUP_POLL_INTERVAL_MS Default", "0");
         }
 
         public override async Task EventStream(IAsyncStreamReader<StreamingMessage> requestStream, IServerStreamWriter<StreamingMessage> responseStream, ServerCallContext context)
         {
             var cancelSource = new TaskCompletionSource<bool>();
-
-            IDictionary<string, IDisposable> outboundEventSubscriptions = new Dictionary<string, IDisposable>();
             try
             {
                 context.CancellationToken.Register(() => cancelSource.TrySetResult(false));

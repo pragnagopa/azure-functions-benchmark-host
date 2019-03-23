@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using TestGrpc.Messages;
 
-namespace GrpcAspNet
+namespace GrpcMessages.Events
 {
     public class OutboundEvent : RpcEvent
     {

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace GrpcAspNet
+namespace GrpcMessages.Events
 {
     public class RpcChannelEvent : ScriptEvent
     {

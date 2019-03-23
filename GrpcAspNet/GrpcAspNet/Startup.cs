@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TestGrpc.Messages;
+using GrpcMessages.Events;
 using GrpcServer;
 
 namespace GrpcAspNet

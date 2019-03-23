@@ -3,7 +3,7 @@
 
 using System;
 
-namespace GrpcAspNet
+namespace GrpcMessages.Events
 {
     public interface IScriptEventManager : IObservable<ScriptEvent>
     {
