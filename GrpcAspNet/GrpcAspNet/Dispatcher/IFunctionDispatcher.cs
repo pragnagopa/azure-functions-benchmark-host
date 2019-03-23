@@ -10,6 +10,7 @@ namespace GrpcAspNet
         IEnumerable<LanguageWorkerChannel> WorkerChannels { get; }
 
         void AddWorkerChannel(LanguageWorkerChannel workerChannel);
-    
+
+        int GetEventStreamId();
     }
 }

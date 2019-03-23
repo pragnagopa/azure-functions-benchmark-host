@@ -41,13 +41,14 @@ namespace GrpcAspNet.Controllers
             {
                 _languageWorkerChannel = _functionDispatcher.WorkerChannels.FirstOrDefault();
             }
+            int streamId = _functionDispatcher.GetEventStreamId();
             ScriptInvocationContext invocationContext = new ScriptInvocationContext()
             {
                 FunctionId = id.ToString(),
                 InvocationId = Guid.NewGuid().ToString(),
                 ResultSource = new TaskCompletionSource<string>()
             };
-            _languageWorkerChannel.SendInvocationRequest(invocationContext, id.ToString());
+            _languageWorkerChannel.SendInvocationRequest(invocationContext, streamId.ToString());
             return invocationContext.ResultSource.Task;
             //return $"{id}-succeeed-{invocationContext.InvocationId}";
         }
