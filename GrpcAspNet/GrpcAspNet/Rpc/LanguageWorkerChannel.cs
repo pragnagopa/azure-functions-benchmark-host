@@ -71,8 +71,8 @@ namespace GrpcAspNet
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo()
                 {
-                    FileName = "dotnet",
-                    Arguments = $"{clientPath} {_serverUri.ToString()} {_workerId}"
+                    FileName = $"{clientPath}",
+                    Arguments = $"{ _serverUri.ToString()} {_workerId}"
                 };
                 _process = new Process();
                 _process.StartInfo = startInfo;

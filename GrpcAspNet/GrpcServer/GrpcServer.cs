@@ -23,7 +23,7 @@ namespace GrpcServer
             _server = new Server(grpcChannelOptions)
             {
                 Services = { FunctionRpc.BindService(serviceImpl) },
-                Ports = { new ServerPort("localhost", 50052, ServerCredentials.Insecure) }
+                Ports = { new ServerPort("localhost", ServerPort.PickUnused, ServerCredentials.Insecure) }
             };
         }
 

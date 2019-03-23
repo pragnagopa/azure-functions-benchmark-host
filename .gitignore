@@ -3,3 +3,6 @@
 /GrpcAspNet/GrpcAspNet/bin/*
 /GrpcAspNet/*/bin/Debug/*
 /GrpcAspNet/*/obj/*
+/GrpcAspNet/GrpcMessages/bin/*
+/GrpcAspNet/GrpcServer/bin/*
+/GrpcAspNet/TestClient/bin/*

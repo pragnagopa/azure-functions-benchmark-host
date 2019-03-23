@@ -12,12 +12,11 @@ namespace TestClient
             //Environment.SetEnvironmentVariable("GRPC_TRACE", "api");
             //Environment.SetEnvironmentVariable("GRPC_VERBOSITY", "debug");
             //GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
-            Console.WriteLine("Hello World!");
             Channel channel = new Channel(args[0], ChannelCredentials.Insecure);
             var client = new FunctionRpcClient(new FunctionRpc.FunctionRpcClient(channel), args[1]);
             client.RpcStream();
 
-            Console.ReadKey();
+            while (true) { }
         }
     }
 }
