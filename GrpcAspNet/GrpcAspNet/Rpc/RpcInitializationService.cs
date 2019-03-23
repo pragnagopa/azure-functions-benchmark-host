@@ -17,13 +17,16 @@ namespace GrpcAspNet
     public class RpcInitializationService : IHostedService
     {
         private readonly IRpcServer _rpcServer;
+        private readonly IRpcServerCopy _rpcServerCopy;
         private readonly IScriptEventManager _eventManager;
         private readonly IFunctionDispatcher _functionDispatcher;
         private LanguageWorkerChannel _languageWorkerChannel;
+        private LanguageWorkerChannel _languageWorkerChannelCopy;
 
-        public RpcInitializationService(IRpcServer rpcServer, IFunctionDispatcher functionDispatcher, IScriptEventManager eventManager)
+        public RpcInitializationService(IRpcServerCopy rpcServerCopy, IRpcServer rpcServer, IFunctionDispatcher functionDispatcher, IScriptEventManager eventManager)
         {
             _rpcServer = rpcServer;
+            _rpcServerCopy = rpcServerCopy;
             _eventManager = eventManager;
             _functionDispatcher = functionDispatcher;
         }
@@ -46,6 +49,7 @@ namespace GrpcAspNet
             try
             {
                 await _rpcServer.StartAsync();
+                await _rpcServerCopy.StartAsync();
             }
             catch (Exception grpcInitEx)
             {
@@ -57,7 +61,12 @@ namespace GrpcAspNet
         {
             string workerId = Guid.NewGuid().ToString();
             _languageWorkerChannel = new LanguageWorkerChannel(workerId, _eventManager, _rpcServer.CSharpUri);
+
+            string workerIdCopy = Guid.NewGuid().ToString();
+            _languageWorkerChannelCopy = new LanguageWorkerChannel(workerIdCopy, _eventManager, _rpcServerCopy.CSharpUri);
+
             _functionDispatcher.AddWorkerChannel(_languageWorkerChannel);
+            _functionDispatcher.AddWorkerChannel(_languageWorkerChannelCopy);
             return Task.CompletedTask;
         }
     }

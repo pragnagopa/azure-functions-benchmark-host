@@ -24,18 +24,11 @@ namespace GrpcAspNet
 
         public int GetEventStreamId()
         {
-            var currentNumberOfWorkers = 5;
+            var currentNumberOfWorkers = 2;
             var result = _counter % currentNumberOfWorkers;
             lock (_functionLoadResponseLock)
             {
-                if (_counter < 5)
-                {
-                    _counter++;
-                }
-                else
-                {
-                    _counter = 1;
-                }
+                _counter = _counter == 0 ? 1 : 0;
             }
             return result;
         }

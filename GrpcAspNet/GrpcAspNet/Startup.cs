@@ -40,6 +40,7 @@ namespace GrpcAspNet
             services.AddSingleton<IHostedService, RpcInitializationService>();
             services.AddSingleton<FunctionRpc.FunctionRpcBase, FunctionRpcService>();
             services.AddSingleton<IRpcServer, GrpcServer.GrpcServer>();
+            services.AddSingleton<IRpcServerCopy, GrpcServer.GrpcServerCopy>();
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);

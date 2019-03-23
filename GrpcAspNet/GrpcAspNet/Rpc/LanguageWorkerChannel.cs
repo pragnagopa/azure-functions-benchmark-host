@@ -84,6 +84,7 @@ namespace GrpcAspNet
                 throw new Exception($"Failed to start Language Worker Channel for language", ex);
             }
         }
+
         internal void SendInvocationRequest(ScriptInvocationContext context, string eventStreamId)
         {
             InvocationRequest invocationRequest = new InvocationRequest()

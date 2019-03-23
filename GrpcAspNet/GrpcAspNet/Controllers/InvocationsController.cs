@@ -37,18 +37,16 @@ namespace GrpcAspNet.Controllers
         [HttpGet("{id}", Name = "Get")]
         public Task<string> Get(int id)
         {
-            if (_languageWorkerChannel == null)
-            {
-                _languageWorkerChannel = _functionDispatcher.WorkerChannels.FirstOrDefault();
-            }
             int streamId = _functionDispatcher.GetEventStreamId();
+            _languageWorkerChannel = _functionDispatcher.WorkerChannels.ElementAt(streamId);
+           
             ScriptInvocationContext invocationContext = new ScriptInvocationContext()
             {
                 FunctionId = id.ToString(),
                 InvocationId = Guid.NewGuid().ToString(),
                 ResultSource = new TaskCompletionSource<string>()
             };
-            _languageWorkerChannel.SendInvocationRequest(invocationContext, streamId.ToString());
+            _languageWorkerChannel.SendInvocationRequest(invocationContext, "0");
             return invocationContext.ResultSource.Task;
             //return $"{id}-succeeed-{invocationContext.InvocationId}";
         }
