@@ -7,7 +7,7 @@ namespace GrpcAspNet
 {
     public interface IFunctionDispatcher
     {
-        IEnumerable<LanguageWorkerChannel> WorkerChannels { get; }
+        LanguageWorkerChannel WorkerChannel { get; }
 
         void AddWorkerChannel(LanguageWorkerChannel workerChannel);
     

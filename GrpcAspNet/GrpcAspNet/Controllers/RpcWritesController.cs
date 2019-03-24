@@ -31,20 +31,20 @@ namespace GrpcAspNet.Controllers
 
         // GET: api/RcpWrites/5
         [HttpGet("{id}")]
-        public Task Get(int id)
+        public Task<string> Get(int id)
         {
             _logger.LogInformation($"APi call received on threadId {Thread.CurrentThread.ManagedThreadId}");
             if (_languageWorkerChannel == null)
             {
-                _languageWorkerChannel = _functionDispatcher.WorkerChannels.FirstOrDefault();
+                _languageWorkerChannel = _functionDispatcher.WorkerChannel;
             }
             RpcWriteContext writeContext = new RpcWriteContext()
             {
                 InvocationId = Guid.NewGuid().ToString(),
                 ResultSource = new TaskCompletionSource<string>()
             };
-            return _languageWorkerChannel.WriteInvocationRequestAsync(writeContext);
-            // return Task.FromResult("OK");
+            Task.Factory.StartNew(() => _languageWorkerChannel.WriteInvocationRequestAsync(writeContext));
+            return Task.FromResult("OK");
             //return writeContext.ResultSource.Task;
         }
 

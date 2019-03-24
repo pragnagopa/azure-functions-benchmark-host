@@ -8,20 +8,19 @@ namespace GrpcAspNet
 {
     public class FunctionDispatcher : IFunctionDispatcher
     {
-        public IList<LanguageWorkerChannel> _workerChannels;
+        public LanguageWorkerChannel _workerChannel;
         private readonly ILogger _logger;
 
         public FunctionDispatcher(ILogger<FunctionDispatcher> logger)
         {
-            _workerChannels = new List<LanguageWorkerChannel>();
             _logger = logger;
         }
-        public IEnumerable<LanguageWorkerChannel> WorkerChannels => _workerChannels;
+        public LanguageWorkerChannel WorkerChannel => _workerChannel;
 
         public void AddWorkerChannel(LanguageWorkerChannel workerChannel)
         {
             _logger.LogInformation($"Adding LanguageWorkerChannel workerId:{workerChannel.Id}");
-            _workerChannels.Add(workerChannel);
+            _workerChannel = workerChannel;
         }
     }
 }
