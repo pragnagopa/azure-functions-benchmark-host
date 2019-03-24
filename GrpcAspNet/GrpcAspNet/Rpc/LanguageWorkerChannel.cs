@@ -110,7 +110,7 @@ namespace GrpcAspNet
         internal void WriteInvocationRequest(RpcWriteContext context)
         {
             _eventSubscriptions.Add(_writeEvents.Where(msg => msg.InvocationId == context.InvocationId)
-                   .ObserveOn(new NewThreadScheduler())
+                   .ObserveOn(TaskPoolScheduler.Default)
                    .Subscribe((msg) => RpcWriteEventDone(msg)));
             InvocationRequest invocationRequest = new InvocationRequest()
             {
