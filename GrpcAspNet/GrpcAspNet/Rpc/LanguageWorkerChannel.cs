@@ -43,12 +43,10 @@ namespace GrpcAspNet
 
         internal LanguageWorkerChannel(
            string workerId,
-           IScriptEventManager eventManager,
-           string serverUri)
+           IScriptEventManager eventManager)
         {
             _workerId = workerId;
             _eventManager = eventManager;
-            _serverUri = serverUri;
             _inboundWorkerEvents = _eventManager.OfType<InboundEvent>()
                 .ObserveOn(new NewThreadScheduler())
                 .Where(msg => msg.WorkerId == _workerId);
@@ -67,13 +65,13 @@ namespace GrpcAspNet
 
         internal void StartProcess()
         {
-            string clientPath = Environment.GetEnvironmentVariable("GrcpClient");
+            string serverPath = Environment.GetEnvironmentVariable("GrpcServer");
             try
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo()
                 {
-                    FileName = $"{clientPath}",
-                    Arguments = $"{ _serverUri.ToString()} {_workerId}"
+                    FileName = $"{serverPath}",
+                    Arguments = $" {_workerId}"
                 };
                 _process = new Process();
                 _process.StartInfo = startInfo;

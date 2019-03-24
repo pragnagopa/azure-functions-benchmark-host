@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GrpcServer": {
+      "commandName": "Project",
+      "commandLineArgs": "nvnv"
+    }
+  }
+}

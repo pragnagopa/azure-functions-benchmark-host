@@ -38,9 +38,6 @@ namespace GrpcAspNet
             services.AddSingleton<IFunctionDispatcher, FunctionDispatcher>();
             services.AddSingleton<IScriptEventManager, ScriptEventManager>();
             services.AddSingleton<IHostedService, RpcInitializationService>();
-            services.AddSingleton<FunctionRpc.FunctionRpcBase, FunctionRpcService>();
-            services.AddSingleton<IRpcServer, GrpcServer.GrpcServer>();
-
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

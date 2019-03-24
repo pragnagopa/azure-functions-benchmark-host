@@ -12,19 +12,58 @@ using TestGrpc.Messages;
 using GrpcMessages.Events;
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 
-namespace GrpcAspNet
+namespace GrpcServer
 {
     // Implementation for the grpc service
     // TODO: move to WebJobs.Script.Grpc package and provide event stream abstraction
     internal class FunctionRpcService : FunctionRpc.FunctionRpcBase
     {
         private IScriptEventManager _eventManager;
-        
-        public FunctionRpcService(IScriptEventManager scriptEventManager)
+        private string _workerId;
+        private IObservable<InboundEvent> _inboundWorkerEvents;
+        private List<IDisposable> _eventSubscriptions = new List<IDisposable>();
+
+        public FunctionRpcService(string workerId)
         {
-            _eventManager = scriptEventManager;
+            _workerId = workerId;
+            _eventManager = new ScriptEventManager();
+            _inboundWorkerEvents = _eventManager.OfType<InboundEvent>()
+               .ObserveOn(new NewThreadScheduler())
+               .Where(msg => msg.WorkerId == _workerId);
+
+            _eventSubscriptions.Add(_inboundWorkerEvents.Where(msg => msg.MessageType == MsgType.InvocationRequest)
+              .ObserveOn(new NewThreadScheduler())
+              .Subscribe((msg) => InvocationRequest(msg.Message, "0")));
+
+            _eventSubscriptions.Add(_inboundWorkerEvents.Where(msg => msg.MessageType == MsgType.InvocationRequest)
+              .ObserveOn(new NewThreadScheduler())
+              .Subscribe((msg) => InvocationRequest(msg.Message, "1")));
+
+            _eventSubscriptions.Add(_inboundWorkerEvents.Where(msg => msg.MessageType == MsgType.InvocationRequest)
+              .ObserveOn(new NewThreadScheduler())
+              .Subscribe((msg) => InvocationRequest(msg.Message, "2")));
+            _eventSubscriptions.Add(_inboundWorkerEvents.Where(msg => msg.MessageType == MsgType.InvocationRequest)
+              .ObserveOn(new NewThreadScheduler())
+              .Subscribe((msg) => InvocationRequest(msg.Message, "3")));
+            _eventSubscriptions.Add(_inboundWorkerEvents.Where(msg => msg.MessageType == MsgType.InvocationRequest)
+              .ObserveOn(new NewThreadScheduler())
+              .Subscribe((msg) => InvocationRequest(msg.Message, "4")));
             Environment.SetEnvironmentVariable("GRPC_EXPERIMENTAL_DISABLE_FLOW_CONTROL", "1");
             Environment.SetEnvironmentVariable("GRPC_CLIENT_CHANNEL_BACKUP_POLL_INTERVAL_MS Default", "0");
+        }
+        internal void InvocationRequest(StreamingMessage serverMessage, string eventStreamId)
+        {
+            InvocationRequest invocationRequest = serverMessage.InvocationRequest;
+            InvocationResponse invocationResponse = new InvocationResponse()
+            {
+                InvocationId = invocationRequest.InvocationId,
+                Result = "Success"
+            };
+            StreamingMessage responseMessage = new StreamingMessage()
+            {
+                InvocationResponse = invocationResponse
+            };
+            _eventManager.Publish(new OutboundEvent(_workerId, responseMessage, eventStreamId));
         }
 
         public override async Task EventStream(IAsyncStreamReader<StreamingMessage> requestStream, IServerStreamWriter<StreamingMessage> responseStream, ServerCallContext context)
@@ -47,15 +86,14 @@ namespace GrpcAspNet
 
                 if (await messageAvailable())
                 {
-                    string workerId = requestStream.Current.StartStream.WorkerId;
-                    if (outboundEventSubscriptions.TryGetValue(workerId, out outboundEventSubscription))
+                    if (outboundEventSubscriptions.TryGetValue(_workerId, out outboundEventSubscription))
                     {
                         // no-op
                     }
                     else
                     {
-                        outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
-                            .Where(evt => evt.WorkerId == workerId && evt.EventStreamId == "0")
+                        outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
+                            .Where(evt => evt.WorkerId == _workerId && evt.EventStreamId == "0")
                             .ObserveOn(NewThreadScheduler.Default)
                             .Subscribe(evt =>
                             {
@@ -74,7 +112,7 @@ namespace GrpcAspNet
                     }
                     do
                     {
-                        _eventManager.Publish(new InboundEvent(workerId, requestStream.Current));
+                        _eventManager.Publish(new InboundEvent(_workerId, requestStream.Current));
                     }
                     while (await messageAvailable());
                 }
@@ -111,15 +149,14 @@ namespace GrpcAspNet
 
                 if (await messageAvailable())
                 {
-                    string workerId = requestStream.Current.StartStream.WorkerId;
-                    if (outboundEventSubscriptions.TryGetValue(workerId, out outboundEventSubscription))
+                    if (outboundEventSubscriptions.TryGetValue(_workerId, out outboundEventSubscription))
                     {
                         // no-op
                     }
                     else
                     {
-                        outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
-                            .Where(evt => evt.WorkerId == workerId && evt.EventStreamId == "1")
+                        outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
+                            .Where(evt => evt.WorkerId == _workerId && evt.EventStreamId == "1")
                             .ObserveOn(NewThreadScheduler.Default)
                             .Subscribe(evt =>
                             {
@@ -138,7 +175,7 @@ namespace GrpcAspNet
                     }
                     do
                     {
-                        _eventManager.Publish(new InboundEvent(workerId, requestStream.Current));
+                        _eventManager.Publish(new InboundEvent(_workerId, requestStream.Current));
                     }
                     while (await messageAvailable());
                 }
@@ -175,15 +212,14 @@ namespace GrpcAspNet
 
                 if (await messageAvailable())
                 {
-                    string workerId = requestStream.Current.StartStream.WorkerId;
-                    if (outboundEventSubscriptions.TryGetValue(workerId, out outboundEventSubscription))
+                    if (outboundEventSubscriptions.TryGetValue(_workerId, out outboundEventSubscription))
                     {
                         // no-op
                     }
                     else
                     {
-                        outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
-                            .Where(evt => evt.WorkerId == workerId && evt.EventStreamId == "2")
+                        outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
+                            .Where(evt => evt.WorkerId == _workerId && evt.EventStreamId == "2")
                             .ObserveOn(NewThreadScheduler.Default)
                             .Subscribe(evt =>
                             {
@@ -202,7 +238,7 @@ namespace GrpcAspNet
                     }
                     do
                     {
-                        _eventManager.Publish(new InboundEvent(workerId, requestStream.Current));
+                        _eventManager.Publish(new InboundEvent(_workerId, requestStream.Current));
                     }
                     while (await messageAvailable());
                 }
@@ -239,15 +275,14 @@ namespace GrpcAspNet
 
                 if (await messageAvailable())
                 {
-                    string workerId = requestStream.Current.StartStream.WorkerId;
-                    if (outboundEventSubscriptions.TryGetValue(workerId, out outboundEventSubscription))
+                    if (outboundEventSubscriptions.TryGetValue(_workerId, out outboundEventSubscription))
                     {
                         // no-op
                     }
                     else
                     {
-                        outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
-                            .Where(evt => evt.WorkerId == workerId && evt.EventStreamId == "3")
+                        outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
+                            .Where(evt => evt.WorkerId == _workerId && evt.EventStreamId == "3")
                             .ObserveOn(NewThreadScheduler.Default)
                             .Subscribe(evt =>
                             {
@@ -266,7 +301,7 @@ namespace GrpcAspNet
                     }
                     do
                     {
-                        _eventManager.Publish(new InboundEvent(workerId, requestStream.Current));
+                        _eventManager.Publish(new InboundEvent(_workerId, requestStream.Current));
                     }
                     while (await messageAvailable());
                 }
@@ -303,15 +338,14 @@ namespace GrpcAspNet
 
                 if (await messageAvailable())
                 {
-                    string workerId = requestStream.Current.StartStream.WorkerId;
-                    if (outboundEventSubscriptions.TryGetValue(workerId, out outboundEventSubscription))
+                    if (outboundEventSubscriptions.TryGetValue(_workerId, out outboundEventSubscription))
                     {
                         // no-op
                     }
                     else
                     {
-                        outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
-                            .Where(evt => evt.WorkerId == workerId && evt.EventStreamId == "4")
+                        outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
+                            .Where(evt => evt.WorkerId == _workerId && evt.EventStreamId == "4")
                             .ObserveOn(NewThreadScheduler.Default)
                             .Subscribe(evt =>
                             {
@@ -330,7 +364,7 @@ namespace GrpcAspNet
                     }
                     do
                     {
-                        _eventManager.Publish(new InboundEvent(workerId, requestStream.Current));
+                        _eventManager.Publish(new InboundEvent(_workerId, requestStream.Current));
                     }
                     while (await messageAvailable());
                 }

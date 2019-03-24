@@ -12,6 +12,7 @@ namespace GrpcServer
     public class GrpcServer : IRpcServer, IDisposable
     {
         private Server _server;
+        const int Port = 50052;
         private bool _disposed = false;
         public const int MaxMessageLengthBytes = 128 * 1024 * 1024;
 
@@ -23,13 +24,13 @@ namespace GrpcServer
             _server = new Server(grpcChannelOptions)
             {
                 Services = { FunctionRpc.BindService(serviceImpl) },
-                Ports = { new ServerPort("127.0.0.1", ServerPort.PickUnused, ServerCredentials.Insecure) }
+                Ports = { new ServerPort("127.0.0.1", Port, ServerCredentials.Insecure) }
             };
         }
 
-        public Uri Uri => new Uri($"http://127.0.0.1:{_server.Ports.First().BoundPort}");
+        public Uri Uri => new Uri($"http://127.0.0.1:{Port}");
 
-        public string CSharpUri => $"127.0.0.1:{_server.Ports.First().BoundPort}";
+        public string CSharpUri => $"127.0.0.1:{Port}";
 
         public Task StartAsync()
         {

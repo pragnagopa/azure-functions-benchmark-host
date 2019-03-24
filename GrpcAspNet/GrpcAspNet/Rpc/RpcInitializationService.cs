@@ -11,19 +11,21 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using GrpcMessages.Events;
+using Grpc.Core;
+using TestGrpc.Messages;
 
 namespace GrpcAspNet
 {
     public class RpcInitializationService : IHostedService
     {
-        private readonly IRpcServer _rpcServer;
         private readonly IScriptEventManager _eventManager;
         private readonly IFunctionDispatcher _functionDispatcher;
         private LanguageWorkerChannel _languageWorkerChannel;
+        private const string serviceUri = "127.0.0.1:50052";
+        private string _workerId = Guid.NewGuid().ToString();
 
-        public RpcInitializationService(IRpcServer rpcServer, IFunctionDispatcher functionDispatcher, IScriptEventManager eventManager)
+        public RpcInitializationService(IFunctionDispatcher functionDispatcher, IScriptEventManager eventManager)
         {
-            _rpcServer = rpcServer;
             _eventManager = eventManager;
             _functionDispatcher = functionDispatcher;
         }
@@ -32,20 +34,28 @@ namespace GrpcAspNet
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await InitializeRpcServerAsync();
             await InitializeChannelsAsync();
+            await InitializeRpcClientAsync();
         }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
+        public Task StopAsync(CancellationToken cancellationToken)
         {
-            await _rpcServer.KillAsync();
+            return Task.CompletedTask;
         }
 
-        internal async Task InitializeRpcServerAsync()
+        internal async Task InitializeRpcClientAsync()
         {
             try
             {
-                await _rpcServer.StartAsync();
+                Environment.SetEnvironmentVariable("GRPC_EXPERIMENTAL_DISABLE_FLOW_CONTROL", "1");
+                //GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
+                Channel channel = new Channel(serviceUri, ChannelCredentials.Insecure);
+                var client = new FunctionRpcClient(new FunctionRpc.FunctionRpcClient(channel), _workerId, _eventManager);
+                client.RpcStream();
+                client.RpcStream1();
+                client.RpcStream2();
+                client.RpcStream3();
+                client.RpcStream4();
             }
             catch (Exception grpcInitEx)
             {
@@ -55,9 +65,10 @@ namespace GrpcAspNet
 
         internal Task InitializeChannelsAsync()
         {
-            string workerId = Guid.NewGuid().ToString();
-            _languageWorkerChannel = new LanguageWorkerChannel(workerId, _eventManager, _rpcServer.CSharpUri);
+            _languageWorkerChannel = new LanguageWorkerChannel(_workerId, _eventManager);
             _functionDispatcher.AddWorkerChannel(_languageWorkerChannel);
+            //TODO wait for server to start
+            Thread.Sleep(TimeSpan.FromSeconds(5));
             return Task.CompletedTask;
         }
     }
