@@ -135,7 +135,7 @@ namespace GrpcAspNet
         {
             if (_executingWrites.TryRemove(writeEvent.InvocationId, out RpcWriteContext context))
             {
-                context.ResultSource.SetResult($"Hello-{writeEvent.InvocationId}");
+                context.ResultSource.SetResult($"WriteDone-{writeEvent.InvocationId}");
             }
         }
 
