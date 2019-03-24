@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace GrpcAspNet.Controllers
 {
@@ -13,11 +15,12 @@ namespace GrpcAspNet.Controllers
     {
         private LanguageWorkerChannel _languageWorkerChannel;
         private IFunctionDispatcher _functionDispatcher;
+        private ILogger _logger;
 
-        public RpcWritesController(IFunctionDispatcher functionDispatcher)
+        public RpcWritesController(IFunctionDispatcher functionDispatcher, ILogger<RpcWritesController> logger)
         {
             _functionDispatcher = functionDispatcher;
-
+            _logger = logger;
         }
         // GET: api/RcpWrites
         [HttpGet]
@@ -28,8 +31,9 @@ namespace GrpcAspNet.Controllers
 
         // GET: api/RcpWrites/5
         [HttpGet("{id}")]
-        public Task<string> Get(int id)
+        public Task Get(int id)
         {
+            _logger.LogInformation($"APi call received on threadId {Thread.CurrentThread.ManagedThreadId}");
             if (_languageWorkerChannel == null)
             {
                 _languageWorkerChannel = _functionDispatcher.WorkerChannels.FirstOrDefault();
@@ -39,8 +43,9 @@ namespace GrpcAspNet.Controllers
                 InvocationId = Guid.NewGuid().ToString(),
                 ResultSource = new TaskCompletionSource<string>()
             };
-            _languageWorkerChannel.WriteInvocationRequest(writeContext);
-            return writeContext.ResultSource.Task;
+            return _languageWorkerChannel.WriteInvocationRequestAsync(writeContext);
+            // return Task.FromResult("OK");
+            //return writeContext.ResultSource.Task;
         }
 
         // POST: api/RcpWrites

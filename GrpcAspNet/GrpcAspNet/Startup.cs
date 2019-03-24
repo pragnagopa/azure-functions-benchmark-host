@@ -14,14 +14,17 @@ using Microsoft.Extensions.Hosting;
 using TestGrpc.Messages;
 using GrpcMessages.Events;
 using GrpcServer;
+using Microsoft.Extensions.Logging;
 
 namespace GrpcAspNet
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private ILogger<Startup> _logger;
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -29,6 +32,7 @@ namespace GrpcAspNet
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            _logger.LogWarning("Starting up");
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.

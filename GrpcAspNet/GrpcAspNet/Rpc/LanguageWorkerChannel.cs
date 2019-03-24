@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using TestGrpc.Messages;
 using GrpcMessages.Events;
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
+using System.Threading.Tasks;
 
 namespace GrpcAspNet
 {
@@ -24,6 +25,7 @@ namespace GrpcAspNet
         private readonly TimeSpan processStartTimeout = TimeSpan.FromSeconds(40);
         private readonly TimeSpan workerInitTimeout = TimeSpan.FromSeconds(30);
         private readonly IScriptEventManager _eventManager;
+        private readonly ILogger _logger;
 
         private string _workerId;
         private Process _process;
@@ -46,9 +48,11 @@ namespace GrpcAspNet
         internal LanguageWorkerChannel(
            string workerId,
            IScriptEventManager eventManager,
-           string serverUri)
+           string serverUri,
+           ILogger logger)
         {
             _workerId = workerId;
+            _logger = logger;
             _eventManager = eventManager;
             _serverUri = serverUri;
             _inboundWorkerEvents = _eventManager.OfType<InboundEvent>()
@@ -95,6 +99,7 @@ namespace GrpcAspNet
         }
         internal void SendInvocationRequest(ScriptInvocationContext context)
         {
+            _logger.LogInformation($"seding invocation request id: {context.InvocationId}");
             InvocationRequest invocationRequest = new InvocationRequest()
             {
                 FunctionId = context.FunctionId,
@@ -107,24 +112,32 @@ namespace GrpcAspNet
             });
         }
 
-        internal void WriteInvocationRequest(RpcWriteContext context)
+        internal Task WriteInvocationRequestAsync(RpcWriteContext context)
         {
+            
+            _logger.LogInformation($"WriteInvocationRequest id: {context.InvocationId} on threadId: {Thread.CurrentThread.ManagedThreadId}");
+
             _eventSubscriptions.Add(_writeEvents.Where(msg => msg.InvocationId == context.InvocationId)
-                   .ObserveOn(TaskPoolScheduler.Default)
+                   .ObserveOn(NewThreadScheduler.Default)
                    .Subscribe((msg) => RpcWriteEventDone(msg)));
             InvocationRequest invocationRequest = new InvocationRequest()
             {
                 InvocationId = context.InvocationId
             };
             _executingWrites.TryAdd(invocationRequest.InvocationId, context);
-            SendStreamingMessage(new StreamingMessage
+            var strMsg = new StreamingMessage
             {
                 InvocationRequest = invocationRequest
-            });
+            };
+
+            Task.Factory.StartNew(() => SendStreamingMessage(strMsg));
+            return Task.CompletedTask;
         }
 
         internal void InvokeResponse(InvocationResponse invokeResponse)
         {
+            _logger.LogInformation($"InvocationResponse received id: {invokeResponse.InvocationId}");
+
             if (_executingInvocations.TryRemove(invokeResponse.InvocationId, out ScriptInvocationContext context))
             {
                 context.ResultSource.SetResult($"Hello-{invokeResponse.InvocationId}");
@@ -133,15 +146,20 @@ namespace GrpcAspNet
 
         internal void RpcWriteEventDone(RpcWriteEvent writeEvent)
         {
+            _logger.LogInformation($"RpcWriteEvent Done  id: {writeEvent.InvocationId} on threadId: {Thread.CurrentThread.ManagedThreadId}");
+
             if (_executingWrites.TryRemove(writeEvent.InvocationId, out RpcWriteContext context))
             {
                 context.ResultSource.SetResult($"WriteDone-{writeEvent.InvocationId}");
             }
         }
 
-        private void SendStreamingMessage(StreamingMessage msg)
+        private Task SendStreamingMessage(StreamingMessage msg)
         {
+            _logger.LogInformation($"SendStreamingMessage...on threadId: {Thread.CurrentThread.ManagedThreadId}");
+
             _eventManager.Publish(new OutboundEvent(_workerId, msg));
+            return Task.CompletedTask;
         }
 
         public void Dispose()

@@ -20,12 +20,14 @@ namespace GrpcAspNet
         private readonly IScriptEventManager _eventManager;
         private readonly IFunctionDispatcher _functionDispatcher;
         private LanguageWorkerChannel _languageWorkerChannel;
+        private ILogger _logger;
 
-        public RpcInitializationService(IRpcServer rpcServer, IFunctionDispatcher functionDispatcher, IScriptEventManager eventManager)
+        public RpcInitializationService(IRpcServer rpcServer, IFunctionDispatcher functionDispatcher, IScriptEventManager eventManager, ILogger<RpcInitializationService> logger)
         {
             _rpcServer = rpcServer;
             _eventManager = eventManager;
             _functionDispatcher = functionDispatcher;
+            _logger = logger;
         }
 
         public LanguageWorkerChannel WorkerChannel => _languageWorkerChannel;
@@ -45,7 +47,9 @@ namespace GrpcAspNet
         {
             try
             {
+                _logger.LogInformation("Starting grpc server");
                 await _rpcServer.StartAsync();
+                _logger.LogInformation("Done Starting grpc server");
             }
             catch (Exception grpcInitEx)
             {
@@ -55,9 +59,10 @@ namespace GrpcAspNet
 
         internal Task InitializeChannelsAsync()
         {
+            _logger.LogInformation("Starting languageworker ");
             string workerId = Guid.NewGuid().ToString();
-            _languageWorkerChannel = new LanguageWorkerChannel(workerId, _eventManager, _rpcServer.CSharpUri);
-            _functionDispatcher.AddWorkerChannel(_languageWorkerChannel);
+            _languageWorkerChannel = new LanguageWorkerChannel(workerId, _eventManager, _rpcServer.CSharpUri, _logger);            _functionDispatcher.AddWorkerChannel(_languageWorkerChannel);
+            _logger.LogInformation("done added to Function Dispatcher");
             return Task.CompletedTask;
         }
     }
