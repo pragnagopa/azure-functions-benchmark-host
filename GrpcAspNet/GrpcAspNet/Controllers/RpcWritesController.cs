@@ -9,31 +9,24 @@ namespace GrpcAspNet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InvocationsController : ControllerBase
+    public class RpcWritesController : ControllerBase
     {
         private LanguageWorkerChannel _languageWorkerChannel;
         private IFunctionDispatcher _functionDispatcher;
 
-        public InvocationsController(IFunctionDispatcher functionDispatcher)
+        public RpcWritesController(IFunctionDispatcher functionDispatcher)
         {
             _functionDispatcher = functionDispatcher;
-           
+
         }
-        
-        // GET: api/Invocations
+        // GET: api/RcpWrites
         [HttpGet]
         public IEnumerable<string> Get()
         {
-            if (_languageWorkerChannel == null)
-            {
-                _languageWorkerChannel = _functionDispatcher.WorkerChannels.FirstOrDefault();
-            }
-            
-            
             return new string[] { "value1", "value2" };
         }
 
-        // GET: api/Invocations/5
+        // GET: api/RcpWrites/5
         [HttpGet("{id}")]
         public Task<string> Get(int id)
         {
@@ -41,24 +34,22 @@ namespace GrpcAspNet.Controllers
             {
                 _languageWorkerChannel = _functionDispatcher.WorkerChannels.FirstOrDefault();
             }
-            ScriptInvocationContext invocationContext = new ScriptInvocationContext()
+            RpcWriteContext writeContext = new RpcWriteContext()
             {
-                FunctionId = id.ToString(),
                 InvocationId = Guid.NewGuid().ToString(),
                 ResultSource = new TaskCompletionSource<string>()
             };
-            _languageWorkerChannel.SendInvocationRequest(invocationContext);
-            return invocationContext.ResultSource.Task;
-            //return $"{id}-succeeed-{invocationContext.InvocationId}";
+            _languageWorkerChannel.WriteInvocationRequest(writeContext);
+            return writeContext.ResultSource.Task;
         }
 
-        // POST: api/Invocations
+        // POST: api/RcpWrites
         [HttpPost]
         public void Post([FromBody] string value)
         {
         }
 
-        // PUT: api/Invocations/5
+        // PUT: api/RcpWrites/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
