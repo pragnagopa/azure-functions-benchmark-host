@@ -60,28 +60,21 @@ namespace GrpcAspNet
                         EventLoopScheduler eventLoopScheduler = new EventLoopScheduler();
                         outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
                             .Where(evt => evt.WorkerId == workerId)
-                            .ObserveOn(eventLoopScheduler)
-                            .Subscribe(async evt =>
+                            .ObserveOn(NewThreadScheduler.Default)
+                            .Subscribe(evt =>
                             {
-                                try
-                                {
                                     // WriteAsync only allows one pending write at a time
                                     // For each responseStream subscription, observe as a blocking write, in series, on a new thread
                                     // Alternatives - could wrap responseStream.WriteAsync with a SemaphoreSlim to control concurrent access
                                     _logger.LogInformation($" writeasync invokeId: {evt.Message.InvocationRequest.InvocationId} on threadId: {Thread.CurrentThread.ManagedThreadId}");
-                                    await responseStream.WriteAsync(evt.Message);
+                                    responseStream.WriteAsync(evt.Message).GetAwaiter().GetResult();
                                     _logger.LogInformation($" write done..invokeId: {evt.Message.InvocationRequest.InvocationId}");
                                     _eventManager.Publish(new RpcWriteEvent(workerId, evt.Message.InvocationRequest.InvocationId));
-                                }
-                                catch (Exception subscribeEventEx)
-                                {
-                                     _logger.LogError(subscribeEventEx, $"Error writing message to Rpc channel worker id: {workerId}");
-                                }
                             }));
                     }
                     do
                     {
-                        // _eventManager.Publish(new InboundEvent(workerId, requestStream.Current));
+                        _eventManager.Publish(new InboundEvent(workerId, requestStream.Current));
                     }
                     while (await messageAvailable());
                 }
