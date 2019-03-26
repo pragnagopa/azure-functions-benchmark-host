@@ -27,8 +27,8 @@ namespace GrpcAspNet
         {
             _eventManager = scriptEventManager;
             _logger = logger;
-            Environment.SetEnvironmentVariable("GRPC_EXPERIMENTAL_DISABLE_FLOW_CONTROL", "1");
-            Environment.SetEnvironmentVariable("GRPC_CLIENT_CHANNEL_BACKUP_POLL_INTERVAL_MS Default", "0");
+            //Environment.SetEnvironmentVariable("GRPC_EXPERIMENTAL_DISABLE_FLOW_CONTROL", "1");
+            //Environment.SetEnvironmentVariable("GRPC_CLIENT_CHANNEL_BACKUP_POLL_INTERVAL_MS Default", "0");
         }
 
         public override async Task EventStream(IAsyncStreamReader<StreamingMessage> requestStream, IServerStreamWriter<StreamingMessage> responseStream, ServerCallContext context)
@@ -60,14 +60,14 @@ namespace GrpcAspNet
                         EventLoopScheduler eventLoopScheduler = new EventLoopScheduler();
                         outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
                             .Where(evt => evt.WorkerId == workerId)
-                            .ObserveOn(NewThreadScheduler.Default)
-                            .Subscribe(evt =>
+                            .ObserveOn(eventLoopScheduler)
+                            .Subscribe(async evt =>
                             {
                                     // WriteAsync only allows one pending write at a time
                                     // For each responseStream subscription, observe as a blocking write, in series, on a new thread
                                     // Alternatives - could wrap responseStream.WriteAsync with a SemaphoreSlim to control concurrent access
                                     _logger.LogInformation($" writeasync invokeId: {evt.Message.InvocationRequest.InvocationId} on threadId: {Thread.CurrentThread.ManagedThreadId}");
-                                    responseStream.WriteAsync(evt.Message).GetAwaiter().GetResult();
+                                    await responseStream.WriteAsync(evt.Message);
                                     _logger.LogInformation($" write done..invokeId: {evt.Message.InvocationRequest.InvocationId}");
                                     _eventManager.Publish(new RpcWriteEvent(workerId, evt.Message.InvocationRequest.InvocationId));
                             }));

@@ -80,7 +80,7 @@ namespace GrpcAspNet
 
         internal void StartProcess()
         {
-            string clientPath = Environment.GetEnvironmentVariable("GrcpClient");
+            string clientPath = Environment.GetEnvironmentVariable("GrpcClient");
             try
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo()

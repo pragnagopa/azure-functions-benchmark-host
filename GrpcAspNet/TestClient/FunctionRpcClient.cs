@@ -62,12 +62,13 @@ namespace TestClient
                         _eventManager.Publish(new InboundEvent(_workerId, serverMessage));
                     }
                 });
+                EventLoopScheduler eventLoopScheduler = new EventLoopScheduler();
                 _outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
                                        .Where(evt => evt.WorkerId == _workerId)
-                                       .ObserveOn(NewThreadScheduler.Default)
-                                       .Subscribe(evt =>
+                                       .ObserveOn(eventLoopScheduler)
+                                       .Subscribe(async evt =>
                                        {
-                                           call.RequestStream.WriteAsync(evt.Message).GetAwaiter().GetResult();
+                                           await call.RequestStream.WriteAsync(evt.Message);
                                        }));
                 StartStream str = new StartStream()
                 {

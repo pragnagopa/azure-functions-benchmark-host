@@ -44,8 +44,7 @@ namespace GrpcAspNet.Controllers
                 ResultSource = new TaskCompletionSource<string>()
             };
             Task.Factory.StartNew(() => _languageWorkerChannel.WriteInvocationRequestAsync(writeContext));
-            return Task.FromResult("OK");
-            //return writeContext.ResultSource.Task;
+            return writeContext.ResultSource.Task;
         }
 
         // POST: api/RcpWrites
