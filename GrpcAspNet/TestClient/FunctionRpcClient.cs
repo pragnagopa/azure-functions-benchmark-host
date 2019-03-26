@@ -62,10 +62,9 @@ namespace TestClient
                         _eventManager.Publish(new InboundEvent(_workerId, serverMessage));
                     }
                 });
-                EventLoopScheduler eventLoopScheduler = new EventLoopScheduler();
                 _outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
                                        .Where(evt => evt.WorkerId == _workerId)
-                                       .ObserveOn(eventLoopScheduler)
+                                       .ObserveOn(NewThreadScheduler.Default)
                                        .Subscribe(evt =>
                                        {
                                            call.RequestStream.WriteAsync(evt.Message).GetAwaiter().GetResult();

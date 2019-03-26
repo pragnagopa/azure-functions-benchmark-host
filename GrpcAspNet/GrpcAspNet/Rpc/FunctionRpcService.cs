@@ -33,7 +33,6 @@ namespace GrpcAspNet
 
         public override async Task EventStream(IAsyncStreamReader<StreamingMessage> requestStream, IServerStreamWriter<StreamingMessage> responseStream, ServerCallContext context)
         {
-            EventLoopScheduler eventLoopScheduler = new EventLoopScheduler();
             var cancelSource = new TaskCompletionSource<bool>();
             try
             {
@@ -60,12 +59,10 @@ namespace GrpcAspNet
                     {
                      outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
                             .Where(evt => evt.WorkerId == workerId)
-                            .ObserveOn(eventLoopScheduler)
-                            .Subscribe(async evt =>
+                            .ObserveOn(NewThreadScheduler.Default)
+                            .Subscribe(evt =>
                             {
-                                    // WriteAsync only allows one pending write at a time
-                                    // For each responseStream subscription, observe as a blocking write, in series, on a new thread
-                                    // Alternatives - could wrap responseStream.WriteAsync with a SemaphoreSlim to control concurrent access
+                                // WriteAsync only allows one pending write at a time
                                     _logger.LogInformation($" writeasync invokeId: {evt.Message.InvocationRequest.InvocationId} on threadId: {Thread.CurrentThread.ManagedThreadId}");
                                      responseStream.WriteAsync(evt.Message).GetAwaiter().GetResult();
                                     _logger.LogInformation($" write done..invokeId: {evt.Message.InvocationRequest.InvocationId}");

@@ -112,7 +112,7 @@ namespace GrpcAspNet
             });
         }
 
-        internal Task WriteInvocationRequestAsync(RpcWriteContext context)
+        internal void WriteInvocationRequest(RpcWriteContext context)
         {
             
             _logger.LogInformation($"WriteInvocationRequest id: {context.InvocationId} on threadId: {Thread.CurrentThread.ManagedThreadId}");
@@ -120,6 +120,7 @@ namespace GrpcAspNet
             _eventSubscriptions.Add(_writeEvents.Where(msg => msg.InvocationId == context.InvocationId)
                    .ObserveOn(NewThreadScheduler.Default)
                    .Subscribe((msg) => RpcWriteEventDone(msg)));
+
             InvocationRequest invocationRequest = new InvocationRequest()
             {
                 InvocationId = context.InvocationId
@@ -130,8 +131,7 @@ namespace GrpcAspNet
                 InvocationRequest = invocationRequest
             };
 
-            Task.Factory.StartNew(() => SendStreamingMessage(strMsg));
-            return Task.CompletedTask;
+            SendStreamingMessage(strMsg);
         }
 
         internal void InvokeResponse(InvocationResponse invokeResponse)
@@ -154,12 +154,11 @@ namespace GrpcAspNet
             }
         }
 
-        private Task SendStreamingMessage(StreamingMessage msg)
+        private void SendStreamingMessage(StreamingMessage msg)
         {
             _logger.LogInformation($"SendStreamingMessage...on threadId: {Thread.CurrentThread.ManagedThreadId}");
 
             _eventManager.Publish(new OutboundEvent(_workerId, msg));
-            return Task.CompletedTask;
         }
 
         public void Dispose()

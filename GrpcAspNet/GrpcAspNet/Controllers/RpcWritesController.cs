@@ -43,7 +43,7 @@ namespace GrpcAspNet.Controllers
                 InvocationId = Guid.NewGuid().ToString(),
                 ResultSource = new TaskCompletionSource<string>()
             };
-            Task.Factory.StartNew(() => _languageWorkerChannel.WriteInvocationRequestAsync(writeContext));
+            _languageWorkerChannel.WriteInvocationRequest(writeContext);
             return writeContext.ResultSource.Task;
         }
 
