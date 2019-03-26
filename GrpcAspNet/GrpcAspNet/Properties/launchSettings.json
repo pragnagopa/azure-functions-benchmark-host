@@ -19,7 +19,7 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "GrcpClient": "C:\\pgopa\\pgopaGit\\grpcSamples\\GrpcAspNet\\TestClient\\bin\\debug\\netcoreapp2.2\\win-x86\\TestClient.exe",
+        "GrpcClient": "D:\\pgopaGit\\grpcSamples\\GrpcAspNet\\TestClient\\bin\\debug\\netcoreapp2.2\\win-x86\\publish\\TestClient.exe",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"

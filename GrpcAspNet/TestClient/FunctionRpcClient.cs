@@ -66,9 +66,9 @@ namespace TestClient
                 _outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
                                        .Where(evt => evt.WorkerId == _workerId)
                                        .ObserveOn(eventLoopScheduler)
-                                       .Subscribe(async evt =>
+                                       .Subscribe(evt =>
                                        {
-                                           await call.RequestStream.WriteAsync(evt.Message);
+                                           call.RequestStream.WriteAsync(evt.Message).GetAwaiter().GetResult();
                                        }));
                 StartStream str = new StartStream()
                 {
