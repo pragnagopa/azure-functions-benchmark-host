@@ -50,7 +50,7 @@ namespace TestClient
             _eventManager.Publish(new OutboundEvent(_workerId, responseMessage));
         }
 
-        public async void RpcStream()
+        public async Task<bool> RpcStream()
         {
             using (var call = client.EventStream())
             {
@@ -79,6 +79,7 @@ namespace TestClient
                 };
                 await call.RequestStream.WriteAsync(startStream);
                 await responseReaderTask;
+                return true;
             }
         }
     }
