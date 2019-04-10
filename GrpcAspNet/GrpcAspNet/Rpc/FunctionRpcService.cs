@@ -22,6 +22,7 @@ namespace GrpcAspNet
         private IScriptEventManager _eventManager;
         private ILogger _logger;
         IDictionary<string, IDisposable> outboundEventSubscriptions = new Dictionary<string, IDisposable>();
+        private static SemaphoreSlim _syncSemaphore = new SemaphoreSlim(1, 1);
 
         public FunctionRpcService(IScriptEventManager scriptEventManager, ILogger<FunctionRpcService> logger)
         {
@@ -59,14 +60,21 @@ namespace GrpcAspNet
                     {
                      outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
                             .Where(evt => evt.WorkerId == workerId)
-                            .ObserveOn(NewThreadScheduler.Default)
-                            .Subscribe(evt =>
+                            .Subscribe(async evt =>
                             {
-                                // WriteAsync only allows one pending write at a time
+                                try
+                                {
+                                    await _syncSemaphore.WaitAsync();
+                                    // WriteAsync only allows one pending write at a time
                                     _logger.LogInformation($" writeasync invokeId: {evt.Message.InvocationRequest.InvocationId} on threadId: {Thread.CurrentThread.ManagedThreadId}");
-                                     responseStream.WriteAsync(evt.Message).GetAwaiter().GetResult();
+                                    await responseStream.WriteAsync(evt.Message);
                                     _logger.LogInformation($" write done..invokeId: {evt.Message.InvocationRequest.InvocationId}");
                                     _eventManager.Publish(new RpcWriteEvent(workerId, evt.Message.InvocationRequest.InvocationId));
+                                }
+                                finally
+                                {
+                                    _syncSemaphore.Release();
+                                }
                             }));
                     }
                     do

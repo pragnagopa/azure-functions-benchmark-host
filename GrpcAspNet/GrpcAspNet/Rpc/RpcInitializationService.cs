@@ -61,7 +61,8 @@ namespace GrpcAspNet
         {
             _logger.LogInformation("Starting languageworker ");
             string workerId = Guid.NewGuid().ToString();
-            _languageWorkerChannel = new LanguageWorkerChannel(workerId, _eventManager, _rpcServer.CSharpUri, _logger);            _functionDispatcher.AddWorkerChannel(_languageWorkerChannel);
+            _languageWorkerChannel = new LanguageWorkerChannel(workerId, _eventManager, _rpcServer.CSharpUri, _logger);
+            _functionDispatcher.AddWorkerChannel(_languageWorkerChannel);
             _logger.LogInformation("done added to Function Dispatcher");
             return Task.CompletedTask;
         }

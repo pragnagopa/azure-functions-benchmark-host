@@ -9,6 +9,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
+using System.Threading;
 
 namespace TestClient
 {
@@ -20,6 +21,7 @@ namespace TestClient
         private IObservable<InboundEvent> _inboundWorkerEvents;
         IDictionary<string, IDisposable> _outboundEventSubscriptions = new Dictionary<string, IDisposable>();
         private List<IDisposable> _eventSubscriptions = new List<IDisposable>();
+        private static SemaphoreSlim _syncSemaphore = new SemaphoreSlim(1, 1);
 
         public FunctionRpcClient(FunctionRpc.FunctionRpcClient client, string workerId)
         {
@@ -64,10 +66,17 @@ namespace TestClient
                 });
                 _outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
                                        .Where(evt => evt.WorkerId == _workerId)
-                                       .ObserveOn(NewThreadScheduler.Default)
-                                       .Subscribe(evt =>
+                                       .Subscribe(async evt =>
                                        {
-                                           call.RequestStream.WriteAsync(evt.Message).GetAwaiter().GetResult();
+                                           try
+                                           {
+                                               await _syncSemaphore.WaitAsync();
+                                               await call.RequestStream.WriteAsync(evt.Message);
+                                           }
+                                           finally
+                                           {
+                                               _syncSemaphore.Release();
+                                           }
                                        }));
                 StartStream str = new StartStream()
                 {
