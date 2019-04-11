@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using TestGrpc.Messages;
 
 namespace GrpcAspNet
 {
@@ -15,5 +16,7 @@ namespace GrpcAspNet
         public string FunctionId { get; set; }
 
         public TaskCompletionSource<string> ResultSource { get; set; }
+
+        public StreamingMessage Msg { get; set; }
     }
 }

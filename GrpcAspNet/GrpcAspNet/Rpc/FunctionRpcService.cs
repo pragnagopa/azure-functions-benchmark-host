@@ -12,6 +12,7 @@ using TestGrpc.Messages;
 using GrpcMessages.Events;
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
 namespace GrpcAspNet
 {
@@ -23,6 +24,8 @@ namespace GrpcAspNet
         private ILogger _logger;
         IDictionary<string, IDisposable> outboundEventSubscriptions = new Dictionary<string, IDisposable>();
         private static SemaphoreSlim _syncSemaphore = new SemaphoreSlim(1, 1);
+        public ConcurrentBag<RpcWriteContext> bag = new ConcurrentBag<RpcWriteContext>();
+        public ConcurrentBag<ScriptInvocationContext> invocationBag = new ConcurrentBag<ScriptInvocationContext>();
 
         public FunctionRpcService(IScriptEventManager scriptEventManager, ILogger<FunctionRpcService> logger)
         {
@@ -32,13 +35,13 @@ namespace GrpcAspNet
             //Environment.SetEnvironmentVariable("GRPC_CLIENT_CHANNEL_BACKUP_POLL_INTERVAL_MS Default", "0");
         }
 
+
         public override async Task EventStream(IAsyncStreamReader<StreamingMessage> requestStream, IServerStreamWriter<StreamingMessage> responseStream, ServerCallContext context)
         {
             var cancelSource = new TaskCompletionSource<bool>();
             try
             {
                 context.CancellationToken.Register(() => cancelSource.TrySetResult(false));
-                IDisposable outboundEventSubscription = null;
 
                 Func<Task<bool>> messageAvailable = async () =>
                 {
@@ -48,40 +51,34 @@ namespace GrpcAspNet
                     return completed.Result;
                 };
 
+                Func<Task<bool>> writeMessageAvailable = () =>
+                {
+                    // GRPC does not accept cancellation tokens for individual reads, hence wrapper
+                    var completed = bag.Count > 0;
+                    return Task.FromResult(completed);
+                };
+
                 if (await messageAvailable())
                 {
                     string workerId = requestStream.Current.StartStream.WorkerId;
                     _logger.LogInformation($"Received start stream..workerId: {workerId}");
-                    if (outboundEventSubscriptions.TryGetValue(workerId, out outboundEventSubscription))
-                    {
-                        // no-op
-                    }
-                    else
-                    {
-                     outboundEventSubscriptions.Add(workerId, _eventManager.OfType<OutboundEvent>()
-                            .Where(evt => evt.WorkerId == workerId)
-                            .Subscribe(async evt =>
-                            {
-                                try
-                                {
-                                    await _syncSemaphore.WaitAsync();
-                                    // WriteAsync only allows one pending write at a time
-                                    _logger.LogInformation($" writeasync invokeId: {evt.Message.InvocationRequest.InvocationId} on threadId: {Thread.CurrentThread.ManagedThreadId}");
-                                    await responseStream.WriteAsync(evt.Message);
-                                    _logger.LogInformation($" write done..invokeId: {evt.Message.InvocationRequest.InvocationId}");
-                                    _eventManager.Publish(new RpcWriteEvent(workerId, evt.Message.InvocationRequest.InvocationId));
-                                }
-                                finally
-                                {
-                                    _syncSemaphore.Release();
-                                }
-                            }));
-                    }
                     do
                     {
                         _eventManager.Publish(new InboundEvent(workerId, requestStream.Current));
+                        RpcWriteContext writeMsg;
+                        if(bag.TryTake(out writeMsg))
+                        {
+                            await responseStream.WriteAsync(writeMsg.Msg);
+                            writeMsg.ResultSource.SetResult($"WriteDone-{writeMsg.InvocationId}");
+                        }
+                        ScriptInvocationContext invokeMsg;
+                        if (invocationBag.TryTake(out invokeMsg))
+                        {
+                            await responseStream.WriteAsync(invokeMsg.Msg);
+                        }
+                        Thread.Sleep(TimeSpan.FromMilliseconds(1));
                     }
-                    while (await messageAvailable());
+                    while (true);
                 }
             }
             finally

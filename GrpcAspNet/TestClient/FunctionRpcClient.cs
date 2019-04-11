@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace TestClient
 {
@@ -22,6 +23,7 @@ namespace TestClient
         IDictionary<string, IDisposable> _outboundEventSubscriptions = new Dictionary<string, IDisposable>();
         private List<IDisposable> _eventSubscriptions = new List<IDisposable>();
         private static SemaphoreSlim _syncSemaphore = new SemaphoreSlim(1, 1);
+        private ConcurrentBag<StreamingMessage> invokeRes = new ConcurrentBag<StreamingMessage>();
 
         public FunctionRpcClient(FunctionRpc.FunctionRpcClient client, string workerId)
         {
@@ -49,13 +51,40 @@ namespace TestClient
             {
                 InvocationResponse = invocationResponse
             };
-            _eventManager.Publish(new OutboundEvent(_workerId, responseMessage));
+            invokeRes.Add(responseMessage);
+            //_eventManager.Publish(new OutboundEvent(_workerId, responseMessage));
         }
 
         public async Task<bool> RpcStream()
         {
             using (var call = client.EventStream())
             {
+                var cancelSource = new TaskCompletionSource<bool>();
+                Func<Task<bool>> messageAvailable = async () =>
+                {
+                    // GRPC does not accept cancellation tokens for individual reads, hence wrapper
+                    var requestTask = call.ResponseStream.MoveNext(CancellationToken.None);
+                    var completed = await Task.WhenAny(cancelSource.Task, requestTask);
+                    return completed.Result;
+                };
+
+                if (await messageAvailable())
+                {
+                    do
+                    {
+                        var serverMessage = call.ResponseStream.Current;
+                        _eventManager.Publish(new InboundEvent(_workerId, serverMessage));
+                        StreamingMessage res;
+                        if (invokeRes.TryTake(out res))
+                        {
+                            await call.RequestStream.WriteAsync(res);
+                        }
+                        Thread.Sleep(TimeSpan.FromMilliseconds(1));
+                    }
+                    while (true);
+                }
+
+
                 var responseReaderTask = Task.Run(async () =>
                 {
                     while (await call.ResponseStream.MoveNext())
@@ -64,20 +93,7 @@ namespace TestClient
                         _eventManager.Publish(new InboundEvent(_workerId, serverMessage));
                     }
                 });
-                _outboundEventSubscriptions.Add(_workerId, _eventManager.OfType<OutboundEvent>()
-                                       .Where(evt => evt.WorkerId == _workerId)
-                                       .Subscribe(async evt =>
-                                       {
-                                           try
-                                           {
-                                               await _syncSemaphore.WaitAsync();
-                                               await call.RequestStream.WriteAsync(evt.Message);
-                                           }
-                                           finally
-                                           {
-                                               _syncSemaphore.Release();
-                                           }
-                                       }));
+                
                 StartStream str = new StartStream()
                 {
                     WorkerId = _workerId

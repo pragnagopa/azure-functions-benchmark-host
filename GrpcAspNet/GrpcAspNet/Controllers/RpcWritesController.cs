@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using TestGrpc.Messages;
 
 namespace GrpcAspNet.Controllers
 {
@@ -16,11 +17,13 @@ namespace GrpcAspNet.Controllers
         private LanguageWorkerChannel _languageWorkerChannel;
         private IFunctionDispatcher _functionDispatcher;
         private ILogger _logger;
+        private FunctionRpc.FunctionRpcBase _rpcServerImpl;
 
-        public RpcWritesController(IFunctionDispatcher functionDispatcher, ILogger<RpcWritesController> logger)
+        public RpcWritesController(IFunctionDispatcher functionDispatcher, ILogger<RpcWritesController> logger, FunctionRpc.FunctionRpcBase rpcService)
         {
             _functionDispatcher = functionDispatcher;
             _logger = logger;
+            _rpcServerImpl = rpcService;
         }
         // GET: api/RcpWrites
         [HttpGet]
@@ -38,12 +41,26 @@ namespace GrpcAspNet.Controllers
             {
                 _languageWorkerChannel = _functionDispatcher.WorkerChannel;
             }
+            var invokeId = Guid.NewGuid().ToString();
+            InvocationRequest invocationRequest = new InvocationRequest()
+            {
+                InvocationId = invokeId
+            };
+            var strMsg = new StreamingMessage
+            {
+                InvocationRequest = invocationRequest
+            };
             RpcWriteContext writeContext = new RpcWriteContext()
             {
-                InvocationId = Guid.NewGuid().ToString(),
-                ResultSource = new TaskCompletionSource<string>()
+                InvocationId = invokeId,
+                ResultSource = new TaskCompletionSource<string>(),
+                Msg = strMsg
             };
-            _languageWorkerChannel.WriteInvocationRequest(writeContext);
+            
+            //languageWorkerChannel.WriteInvocationRequest(writeContext);
+            FunctionRpcService myservice = _rpcServerImpl as FunctionRpcService;
+            myservice.bag.Add(writeContext);
+
             return writeContext.ResultSource.Task;
         }
 

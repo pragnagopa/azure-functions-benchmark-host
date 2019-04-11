@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TestGrpc.Messages;
 
 namespace GrpcAspNet.Controllers
 {
@@ -13,10 +14,12 @@ namespace GrpcAspNet.Controllers
     {
         private LanguageWorkerChannel _languageWorkerChannel;
         private IFunctionDispatcher _functionDispatcher;
+        private FunctionRpc.FunctionRpcBase _rpcServerImpl;
 
-        public InvocationsController(IFunctionDispatcher functionDispatcher)
+        public InvocationsController(IFunctionDispatcher functionDispatcher, FunctionRpc.FunctionRpcBase rpcService)
         {
             _functionDispatcher = functionDispatcher;
+            _rpcServerImpl = rpcService;
 
         }
 
@@ -41,13 +44,26 @@ namespace GrpcAspNet.Controllers
             {
                 _languageWorkerChannel = _functionDispatcher.WorkerChannel;
             }
+            var invokeId = Guid.NewGuid().ToString();
+            InvocationRequest invocationRequest = new InvocationRequest()
+            {
+                FunctionId = id.ToString(),
+                InvocationId = invokeId
+            };
+            var strMsg = new StreamingMessage
+            {
+                InvocationRequest = invocationRequest
+            };
             ScriptInvocationContext invocationContext = new ScriptInvocationContext()
             {
                 FunctionId = id.ToString(),
-                InvocationId = Guid.NewGuid().ToString(),
+                InvocationId = invokeId,
                 ResultSource = new TaskCompletionSource<string>()
             };
             _languageWorkerChannel.SendInvocationRequest(invocationContext);
+            FunctionRpcService myservice = _rpcServerImpl as FunctionRpcService;
+            myservice.invocationBag.Add(invocationContext);
+
             return invocationContext.ResultSource.Task;
             //return $"{id}-succeeed-{invocationContext.InvocationId}";
         }
