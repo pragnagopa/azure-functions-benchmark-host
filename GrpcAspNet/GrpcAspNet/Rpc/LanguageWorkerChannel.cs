@@ -100,16 +100,9 @@ namespace GrpcAspNet
         internal void SendInvocationRequest(ScriptInvocationContext context)
         {
             _logger.LogInformation($"seding invocation request id: {context.InvocationId}");
-            InvocationRequest invocationRequest = new InvocationRequest()
-            {
-                FunctionId = context.FunctionId,
-                InvocationId = context.InvocationId
-            };
-            _executingInvocations.TryAdd(invocationRequest.InvocationId, context);
-            SendStreamingMessage(new StreamingMessage
-            {
-                InvocationRequest = invocationRequest
-            });
+            
+            _executingInvocations.TryAdd(context.InvocationId, context);
+            
         }
 
         internal void WriteInvocationRequest(RpcWriteContext context)
