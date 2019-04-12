@@ -13,6 +13,7 @@ using GrpcMessages.Events;
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace GrpcAspNet
 {
@@ -60,25 +61,27 @@ namespace GrpcAspNet
 
                 if (await messageAvailable())
                 {
+                    Stopwatch stopWatch = new Stopwatch();
+                    var requestCount = 0;
                     string workerId = requestStream.Current.StartStream.WorkerId;
                     _logger.LogInformation($"Received start stream..workerId: {workerId}");
                     do
                     {
-                        _eventManager.Publish(new InboundEvent(workerId, requestStream.Current));
-                        RpcWriteContext writeMsg;
-                        if(bag.TryTake(out writeMsg))
+                        stopWatch.Start();
+                        InvocationRequest invocationRequest = new InvocationRequest()
                         {
-                            await responseStream.WriteAsync(writeMsg.Msg);
-                            writeMsg.ResultSource.SetResult($"WriteDone-{writeMsg.InvocationId}");
-                        }
-                        ScriptInvocationContext invokeMsg;
-                        if (invocationBag.TryTake(out invokeMsg))
+                            FunctionId = requestCount.ToString(),
+                            InvocationId = requestCount.ToString()
+                        };
+                        var strMsg = new StreamingMessage
                         {
-                            await responseStream.WriteAsync(invokeMsg.Msg);
-                        }
-                        Thread.Sleep(TimeSpan.FromMilliseconds(1));
-                    }
-                    while (true);
+                            InvocationRequest = invocationRequest
+                        };
+                        await responseStream.WriteAsync(strMsg);
+                        requestCount++;
+                    } while (stopWatch.ElapsedMilliseconds < 1000);
+                    //while (requestCount < 10000);
+                    _logger.LogInformation($"done...sent 10000");
                 }
             }
             finally

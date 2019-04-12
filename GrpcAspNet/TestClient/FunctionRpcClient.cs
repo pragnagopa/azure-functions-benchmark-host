@@ -59,38 +59,12 @@ namespace TestClient
         {
             using (var call = client.EventStream())
             {
-                var cancelSource = new TaskCompletionSource<bool>();
-                Func<Task<bool>> messageAvailable = async () =>
-                {
-                    // GRPC does not accept cancellation tokens for individual reads, hence wrapper
-                    var requestTask = call.ResponseStream.MoveNext(CancellationToken.None);
-                    var completed = await Task.WhenAny(cancelSource.Task, requestTask);
-                    return completed.Result;
-                };
-
-                if (await messageAvailable())
-                {
-                    do
-                    {
-                        var serverMessage = call.ResponseStream.Current;
-                        _eventManager.Publish(new InboundEvent(_workerId, serverMessage));
-                        StreamingMessage res;
-                        if (invokeRes.TryTake(out res))
-                        {
-                            await call.RequestStream.WriteAsync(res);
-                        }
-                        Thread.Sleep(TimeSpan.FromMilliseconds(1));
-                    }
-                    while (true);
-                }
-
-
                 var responseReaderTask = Task.Run(async () =>
                 {
                     while (await call.ResponseStream.MoveNext())
                     {
                         var serverMessage = call.ResponseStream.Current;
-                        _eventManager.Publish(new InboundEvent(_workerId, serverMessage));
+                        Console.WriteLine("Received " + serverMessage.InvocationRequest.InvocationId);
                     }
                 });
                 
