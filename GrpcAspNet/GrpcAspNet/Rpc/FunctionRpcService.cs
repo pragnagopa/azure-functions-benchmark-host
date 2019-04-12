@@ -68,18 +68,17 @@ namespace GrpcAspNet
                     do
                     {
                         stopWatch.Start();
-                        InvocationRequest invocationRequest = new InvocationRequest()
+                        if (invocationBag.TryTake(out ScriptInvocationContext invocationContext))
                         {
-                            FunctionId = requestCount.ToString(),
-                            InvocationId = requestCount.ToString()
-                        };
-                        var strMsg = new StreamingMessage
+                            await responseStream.WriteAsync(invocationContext.Msg);
+                        }
+                        if (bag.TryTake(out RpcWriteContext rpcWriteContext))
                         {
-                            InvocationRequest = invocationRequest
-                        };
-                        await responseStream.WriteAsync(strMsg);
+                            await responseStream.WriteAsync(rpcWriteContext.Msg);
+                            rpcWriteContext.ResultSource.SetResult($"Done writing invocationid:{rpcWriteContext.InvocationId}");
+                        }
                         requestCount++;
-                    } while (stopWatch.ElapsedMilliseconds < 1000);
+                    } while (stopWatch.ElapsedMilliseconds < TimeSpan.FromMinutes(10).TotalMilliseconds);
                     //while (requestCount < 10000);
                     _logger.LogInformation($"done...sent 10000");
                 }

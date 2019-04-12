@@ -58,7 +58,8 @@ namespace GrpcAspNet.Controllers
             {
                 FunctionId = id.ToString(),
                 InvocationId = invokeId,
-                ResultSource = new TaskCompletionSource<string>()
+                ResultSource = new TaskCompletionSource<string>(),
+                Msg = strMsg
             };
             _languageWorkerChannel.SendInvocationRequest(invocationContext);
             FunctionRpcService myservice = _rpcServerImpl as FunctionRpcService;
