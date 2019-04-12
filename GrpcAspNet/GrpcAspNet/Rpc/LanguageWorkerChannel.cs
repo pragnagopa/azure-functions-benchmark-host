@@ -67,7 +67,10 @@ namespace GrpcAspNet
                 .ObserveOn(new NewThreadScheduler())
                 .Subscribe((msg) => InvokeResponse(msg.Message.InvocationResponse)));
 
-            
+            _eventSubscriptions.Add(_inboundWorkerEvents.Where(msg => msg.MessageType == MsgType.StartStream)
+               .ObserveOn(new NewThreadScheduler())
+               .Subscribe((msg) => StartStreamResponse(msg)));
+
 
             StartProcess();
         }
@@ -134,6 +137,23 @@ namespace GrpcAspNet
             if (_executingInvocations.TryRemove(invokeResponse.InvocationId, out ScriptInvocationContext context))
             {
                 context.ResultSource.SetResult($"Hello-{invokeResponse.InvocationId}");
+            }
+        }
+
+        internal async void StartStreamResponse(InboundEvent startStreamEvent)
+        {
+            _logger.LogInformation($"StartStreamResponse received");
+            var cancelSource = new TaskCompletionSource<bool>();
+            Func<Task<bool>> messageAvailable = async () =>
+            {
+                // GRPC does not accept cancellation tokens for individual reads, hence wrapper
+                var requestTask = startStreamEvent.requestStream.MoveNext(CancellationToken.None);
+                var completed = await Task.WhenAny(cancelSource.Task, requestTask);
+                return completed.Result;
+            };
+            while (await messageAvailable())
+            {
+                _eventManager.Publish(new InboundEvent(Id, startStreamEvent.requestStream.Current));
             }
         }
 

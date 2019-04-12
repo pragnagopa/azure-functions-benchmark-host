@@ -58,6 +58,9 @@ namespace GrpcAspNet
                     var requestCount = 0;
                     string workerId = requestStream.Current.StartStream.WorkerId;
                     _logger.LogInformation($"Received start stream..workerId: {workerId}");
+                    InboundEvent startStreamEvent = new InboundEvent(workerId, requestStream.Current);
+                    startStreamEvent.requestStream = requestStream;
+                    _eventManager.Publish(startStreamEvent);
                     do
                     {
                         stopWatch.Start();

@@ -18,8 +18,8 @@ namespace TestClient
             Channel channel = new Channel(args[0], ChannelCredentials.Insecure);
             var client = new FunctionRpcClient(new FunctionRpc.FunctionRpcClient(channel), args[1]);
             Task rpcStream = client.RpcStream();
-            Task rpcStream1 = client.RpcStream1();
-            Task.WhenAll(rpcStream, rpcStream1).GetAwaiter().GetResult();
+            //Task rpcStream1 = client.RpcStream1();
+            Task.WhenAll(rpcStream).GetAwaiter().GetResult();
         }
     }
 }

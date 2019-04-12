@@ -79,6 +79,17 @@ namespace TestClient
                     StartStream = str
                 };
                 await call.RequestStream.WriteAsync(startStream);
+                Stopwatch stopWatch = new Stopwatch();
+                Task.Run(async () => await responseReaderTask);
+
+                do
+                {
+                    stopWatch.Start();
+                    if (invokeRes.TryTake(out StreamingMessage invocationResMsg))
+                    {
+                        await call.RequestStream.WriteAsync(invocationResMsg);
+                    }
+                } while (stopWatch.ElapsedMilliseconds < TimeSpan.FromMinutes(10).TotalMilliseconds);
                 await responseReaderTask;
                 return true;
             }
