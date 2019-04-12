@@ -52,13 +52,6 @@ namespace GrpcAspNet
                     return completed.Result;
                 };
 
-                Func<Task<bool>> writeMessageAvailable = () =>
-                {
-                    // GRPC does not accept cancellation tokens for individual reads, hence wrapper
-                    var completed = bag.Count > 0;
-                    return Task.FromResult(completed);
-                };
-
                 if (await messageAvailable())
                 {
                     Stopwatch stopWatch = new Stopwatch();
@@ -92,6 +85,36 @@ namespace GrpcAspNet
 
                 // ensure cancellationSource task completes
                 cancelSource.TrySetResult(false);
+            }
+        }
+
+        public override async Task EventStream1(IAsyncStreamReader<StreamingMessage> requestStream, IServerStreamWriter<StreamingMessage> responseStream, ServerCallContext context)
+        {
+            var cancelSource = new TaskCompletionSource<bool>();
+            IDictionary<string, IDisposable> outboundEventSubscriptions = new Dictionary<string, IDisposable>();
+            context.CancellationToken.Register(() => cancelSource.TrySetResult(false));
+            Func<Task<bool>> messageAvailable = async () =>
+            {
+                // GRPC does not accept cancellation tokens for individual reads, hence wrapper
+                var requestTask = requestStream.MoveNext(CancellationToken.None);
+                var completed = await Task.WhenAny(cancelSource.Task, requestTask);
+                return completed.Result;
+            };
+
+            if (await messageAvailable())
+            {
+                string workerId = requestStream.Current.StartStream.WorkerId;
+                _logger.LogDebug("Established Rpc channel. WorkerId: {workerId}", workerId);
+                do
+                {
+                    var currentMessage = requestStream.Current;
+                    if (currentMessage.InvocationResponse != null && !string.IsNullOrEmpty(currentMessage.InvocationResponse.InvocationId))
+                    {
+                        _logger.LogDebug("Received invocation response for invocationId: {invocationId} from workerId: {workerId}", currentMessage.InvocationResponse.InvocationId, workerId);
+                    }
+                    _eventManager.Publish(new InboundEvent(workerId, currentMessage));
+                }
+                while (await messageAvailable());
             }
         }
     }

@@ -12,6 +12,7 @@ package AzureFunctionsRpcMessages;
 // Interface exported by the server.
 service FunctionRpc {
  rpc EventStream (stream StreamingMessage) returns (stream StreamingMessage) {}
+ rpc EventStream1 (stream StreamingMessage) returns (stream StreamingMessage) {}
 }
 
 message StreamingMessage {

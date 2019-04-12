@@ -2,6 +2,7 @@
 using Grpc.Core;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using TestGrpc.Messages;
 
 namespace TestClient
@@ -16,7 +17,9 @@ namespace TestClient
             //GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
             Channel channel = new Channel(args[0], ChannelCredentials.Insecure);
             var client = new FunctionRpcClient(new FunctionRpc.FunctionRpcClient(channel), args[1]);
-            client.RpcStream().GetAwaiter().GetResult();
+            Task rpcStream = client.RpcStream();
+            Task rpcStream1 = client.RpcStream1();
+            Task.WhenAll(rpcStream, rpcStream1).GetAwaiter().GetResult();
         }
     }
 }

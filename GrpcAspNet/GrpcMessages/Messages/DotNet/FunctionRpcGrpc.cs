@@ -25,6 +25,13 @@ namespace TestGrpc.Messages {
         __Marshaller_AzureFunctionsRpcMessages_StreamingMessage,
         __Marshaller_AzureFunctionsRpcMessages_StreamingMessage);
 
+    static readonly grpc::Method<global::TestGrpc.Messages.StreamingMessage, global::TestGrpc.Messages.StreamingMessage> __Method_EventStream1 = new grpc::Method<global::TestGrpc.Messages.StreamingMessage, global::TestGrpc.Messages.StreamingMessage>(
+        grpc::MethodType.DuplexStreaming,
+        __ServiceName,
+        "EventStream1",
+        __Marshaller_AzureFunctionsRpcMessages_StreamingMessage,
+        __Marshaller_AzureFunctionsRpcMessages_StreamingMessage);
+
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
@@ -35,6 +42,11 @@ namespace TestGrpc.Messages {
     public abstract partial class FunctionRpcBase
     {
       public virtual global::System.Threading.Tasks.Task EventStream(grpc::IAsyncStreamReader<global::TestGrpc.Messages.StreamingMessage> requestStream, grpc::IServerStreamWriter<global::TestGrpc.Messages.StreamingMessage> responseStream, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      public virtual global::System.Threading.Tasks.Task EventStream1(grpc::IAsyncStreamReader<global::TestGrpc.Messages.StreamingMessage> requestStream, grpc::IServerStreamWriter<global::TestGrpc.Messages.StreamingMessage> responseStream, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -72,6 +84,14 @@ namespace TestGrpc.Messages {
       {
         return CallInvoker.AsyncDuplexStreamingCall(__Method_EventStream, null, options);
       }
+      public virtual grpc::AsyncDuplexStreamingCall<global::TestGrpc.Messages.StreamingMessage, global::TestGrpc.Messages.StreamingMessage> EventStream1(grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return EventStream1(new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      public virtual grpc::AsyncDuplexStreamingCall<global::TestGrpc.Messages.StreamingMessage, global::TestGrpc.Messages.StreamingMessage> EventStream1(grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncDuplexStreamingCall(__Method_EventStream1, null, options);
+      }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       protected override FunctionRpcClient NewInstance(ClientBaseConfiguration configuration)
       {
@@ -84,7 +104,8 @@ namespace TestGrpc.Messages {
     public static grpc::ServerServiceDefinition BindService(FunctionRpcBase serviceImpl)
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
-          .AddMethod(__Method_EventStream, serviceImpl.EventStream).Build();
+          .AddMethod(__Method_EventStream, serviceImpl.EventStream)
+          .AddMethod(__Method_EventStream1, serviceImpl.EventStream1).Build();
     }
 
     /// <summary>Register service method implementations with a service binder. Useful when customizing the service binding logic.
@@ -94,6 +115,7 @@ namespace TestGrpc.Messages {
     public static void BindService(grpc::ServiceBinderBase serviceBinder, FunctionRpcBase serviceImpl)
     {
       serviceBinder.AddMethod(__Method_EventStream, serviceImpl.EventStream);
+      serviceBinder.AddMethod(__Method_EventStream1, serviceImpl.EventStream1);
     }
 
   }
