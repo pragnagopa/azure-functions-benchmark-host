@@ -27,6 +27,7 @@ namespace GrpcAspNet
         private static SemaphoreSlim _syncSemaphore = new SemaphoreSlim(1, 1);
         public ConcurrentBag<RpcWriteContext> bag = new ConcurrentBag<RpcWriteContext>();
         public ConcurrentBag<ScriptInvocationContext> invocationBag = new ConcurrentBag<ScriptInvocationContext>();
+        private BlockingCollection<ScriptInvocationContext> _blockingCollectionQueue = new BlockingCollection<ScriptInvocationContext>();
 
         public FunctionRpcService(IScriptEventManager scriptEventManager, ILogger<FunctionRpcService> logger)
         {
@@ -36,6 +37,12 @@ namespace GrpcAspNet
             //Environment.SetEnvironmentVariable("GRPC_CLIENT_CHANNEL_BACKUP_POLL_INTERVAL_MS Default", "0");
         }
 
+        public void BufferInvoctionRequest(ScriptInvocationContext message)
+        {
+            // _outputMessageBag.Add(message);
+            // Task writeTask = _rpcResponseStream.WriteAsync(message);
+            _blockingCollectionQueue.Add(message);
+        }
 
         public override async Task EventStream(IAsyncStreamReader<StreamingMessage> requestStream, IServerStreamWriter<StreamingMessage> responseStream, ServerCallContext context)
         {
@@ -44,40 +51,32 @@ namespace GrpcAspNet
             {
                 context.CancellationToken.Register(() => cancelSource.TrySetResult(false));
 
-                Func<Task<bool>> messageAvailable = async () =>
-                {
-                    // GRPC does not accept cancellation tokens for individual reads, hence wrapper
-                    var requestTask = requestStream.MoveNext(CancellationToken.None);
-                    var completed = await Task.WhenAny(cancelSource.Task, requestTask);
-                    return completed.Result;
-                };
+                await requestStream.MoveNext(CancellationToken.None);
 
-                if (await messageAvailable())
+                Func<Task<bool>> outputMessageAvailable = () =>
                 {
-                    Stopwatch stopWatch = new Stopwatch();
-                    var requestCount = 0;
-                    string workerId = requestStream.Current.StartStream.WorkerId;
-                    _logger.LogInformation($"Received start stream..workerId: {workerId}");
-                    InboundEvent startStreamEvent = new InboundEvent(workerId, requestStream.Current);
-                    startStreamEvent.requestStream = requestStream;
-                    _eventManager.Publish(startStreamEvent);
-                    do
+                    var outputMsgAvailable = new TaskCompletionSource<bool>();
+                    while (!invocationBag.TryPeek(out ScriptInvocationContext outContext))
                     {
-                        stopWatch.Start();
-                        if (invocationBag.TryTake(out ScriptInvocationContext invocationContext))
-                        {
-                            await responseStream.WriteAsync(invocationContext.Msg);
-                        }
-                        if (bag.TryTake(out RpcWriteContext rpcWriteContext))
-                        {
-                            await responseStream.WriteAsync(rpcWriteContext.Msg);
-                            rpcWriteContext.ResultSource.SetResult($"Done writing invocationid:{rpcWriteContext.InvocationId}");
-                        }
-                        requestCount++;
-                    } while (stopWatch.ElapsedMilliseconds < TimeSpan.FromMinutes(10).TotalMilliseconds);
-                    //while (requestCount < 10000);
-                    _logger.LogInformation($"done...sent 10000");
-                }
+                        //outputMsgAvailable.SetResult(true);
+                    }
+                    outputMsgAvailable.SetResult(true);
+                    return outputMsgAvailable.Task;
+                };
+                string workerId = requestStream.Current.StartStream.WorkerId;
+                _logger.LogInformation($"Received start stream..workerId: {workerId}");
+                InboundEvent startStreamEvent = new InboundEvent(workerId, requestStream.Current);
+                startStreamEvent.requestStream = requestStream;
+                _eventManager.Publish(startStreamEvent);
+                var consumer = Task.Run(async () =>
+                {
+                    foreach (var rpcWriteMsg in _blockingCollectionQueue.GetConsumingEnumerable())
+                    {
+                        await responseStream.WriteAsync(rpcWriteMsg.Msg); // Run the task
+                    }// Exits when the BlockingCollection is marked for no more actions
+                });
+                await consumer;
+                _logger.LogInformation($"done...sent 10000");
             }
             finally
             {

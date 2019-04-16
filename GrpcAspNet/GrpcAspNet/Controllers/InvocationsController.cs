@@ -63,7 +63,8 @@ namespace GrpcAspNet.Controllers
             };
             _languageWorkerChannel.SendInvocationRequest(invocationContext);
             FunctionRpcService myservice = _rpcServerImpl as FunctionRpcService;
-            myservice.invocationBag.Add(invocationContext);
+            //myservice.invocationBag.Add(invocationContext);
+            myservice.BufferInvoctionRequest(invocationContext);
 
             return invocationContext.ResultSource.Task;
             //return $"{id}-succeeed-{invocationContext.InvocationId}";

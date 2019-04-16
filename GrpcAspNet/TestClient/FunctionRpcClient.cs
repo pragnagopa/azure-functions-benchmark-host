@@ -25,6 +25,7 @@ namespace TestClient
         private List<IDisposable> _eventSubscriptions = new List<IDisposable>();
         private static SemaphoreSlim _syncSemaphore = new SemaphoreSlim(1, 1);
         private ConcurrentBag<StreamingMessage> invokeRes = new ConcurrentBag<StreamingMessage>();
+        private BlockingCollection<StreamingMessage> _blockingCollectionQueue = new BlockingCollection<StreamingMessage>();
 
         public FunctionRpcClient(FunctionRpc.FunctionRpcClient client, string workerId)
         {
@@ -52,8 +53,9 @@ namespace TestClient
             {
                 InvocationResponse = invocationResponse
             };
-            invokeRes.Add(responseMessage);
+            //invokeRes.Add(responseMessage);
             //_eventManager.Publish(new OutboundEvent(_workerId, responseMessage));
+            _blockingCollectionQueue.Add(responseMessage);
         }
 
         public async Task<bool> RpcStream()
@@ -82,51 +84,14 @@ namespace TestClient
                 Stopwatch stopWatch = new Stopwatch();
                 Task.Run(async () => await responseReaderTask);
 
-                do
+                var consumer = Task.Run(async () =>
                 {
-                    stopWatch.Start();
-                    if (invokeRes.TryTake(out StreamingMessage invocationResMsg))
+                    foreach (var rpcWriteMsg in _blockingCollectionQueue.GetConsumingEnumerable())
                     {
-                        await call.RequestStream.WriteAsync(invocationResMsg);
-                    }
-                } while (stopWatch.ElapsedMilliseconds < TimeSpan.FromMinutes(10).TotalMilliseconds);
-                await responseReaderTask;
-                return true;
-            }
-        }
-
-        public async Task<bool> RpcStream1()
-        {
-            using (var call = client.EventStream1())
-            {
-                var responseReaderTask = Task.Run(async () =>
-                {
-                    while (await call.ResponseStream.MoveNext())
-                    {
-                        var serverMessage = call.ResponseStream.Current;
-                        Console.WriteLine("Received " + serverMessage.InvocationRequest.InvocationId);
+                        await call.RequestStream.WriteAsync(rpcWriteMsg);
                     }
                 });
-
-                StartStream str = new StartStream()
-                {
-                    WorkerId = _workerId
-                };
-                StreamingMessage startStream = new StreamingMessage()
-                {
-                    StartStream = str
-                };
-                await call.RequestStream.WriteAsync(startStream);
-                Stopwatch stopWatch = new Stopwatch();
-                do
-                {
-                    stopWatch.Start();
-                    if (invokeRes.TryTake(out StreamingMessage invocationResMsg))
-                    {
-                        await call.RequestStream.WriteAsync(invocationResMsg);
-                    }
-                } while (stopWatch.ElapsedMilliseconds < TimeSpan.FromMinutes(10).TotalMilliseconds);
-                await responseReaderTask;
+                await consumer;
                 return true;
             }
         }
