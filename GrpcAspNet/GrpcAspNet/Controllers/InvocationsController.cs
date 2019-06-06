@@ -49,7 +49,6 @@ namespace GrpcAspNet.Controllers
             };
             _languageWorkerChannel.SendInvocationRequest(invocationContext);
             return invocationContext.ResultSource.Task;
-            //return $"{id}-succeeed-{invocationContext.InvocationId}";
         }
 
         // POST: api/Invocations

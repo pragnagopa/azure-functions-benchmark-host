@@ -99,7 +99,7 @@ namespace GrpcAspNet
         }
         internal void SendInvocationRequest(ScriptInvocationContext context)
         {
-            _logger.LogInformation($"seding invocation request id: {context.InvocationId}");
+            _logger.LogInformation($"sending invocation request id: {context.InvocationId}");
             InvocationRequest invocationRequest = new InvocationRequest()
             {
                 FunctionId = context.FunctionId,
