@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 using System.Threading;
+using System.Net.Http;
 
 namespace TestClient
 {
@@ -40,11 +41,19 @@ namespace TestClient
         internal void InvocationRequest(StreamingMessage serverMessage)
         {
             InvocationRequest invocationRequest = serverMessage.InvocationRequest;
+            HttpResponseMessage httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+            };
+
             InvocationResponse invocationResponse = new InvocationResponse()
             {
                 InvocationId = invocationRequest.InvocationId,
-                Result = "Success"
+                Result = "Success",
+                ReturnValue = httpResponseMessage.ToRpc()
             };
+            
+
             StreamingMessage responseMessage = new StreamingMessage()
             {
                 InvocationResponse = invocationResponse

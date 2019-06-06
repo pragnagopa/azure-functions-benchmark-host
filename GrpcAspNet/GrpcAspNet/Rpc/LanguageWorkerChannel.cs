@@ -162,7 +162,11 @@ namespace GrpcAspNet
 
             if (_executingInvocations.TryRemove(invokeResponse.InvocationId, out ScriptInvocationContext context))
             {
-                context.ResultSource.SetResult($"Hello-{invokeResponse.InvocationId}");
+                var result = new ScriptInvocationResult()
+                {
+                    Return = invokeResponse?.ReturnValue?.ToObject()
+                };
+                context.ResultSource.SetResult(result);
             }
         }
 
