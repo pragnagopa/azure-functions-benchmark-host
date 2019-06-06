@@ -80,7 +80,12 @@ export class WorkerChannel implements IWorkerChannel {
             invocationId: msg.invocationId,
             result: "Good",
             returnValue: httpResponse
-        }
+        };
+
+        this._eventStream.write({
+            requestId: requestId,
+            invocationResponse: response
+        });
     }).catch((err) => {
         console.log(err);
     });
