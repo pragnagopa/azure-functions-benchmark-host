@@ -14,6 +14,6 @@ namespace GrpcAspNet
 
         public string FunctionId { get; set; }
 
-        public TaskCompletionSource<string> ResultSource { get; set; }
+        public TaskCompletionSource<ScriptInvocationResult> ResultSource { get; set; }
     }
 }

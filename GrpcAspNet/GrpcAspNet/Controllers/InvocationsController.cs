@@ -35,7 +35,7 @@ namespace GrpcAspNet.Controllers
 
         // GET: api/Invocations/5
         [HttpGet("{id}")]
-        public Task<string> Get(int id)
+        public Task<ScriptInvocationResult> Get(int id)
         {
             if (_languageWorkerChannel == null)
             {
@@ -45,7 +45,7 @@ namespace GrpcAspNet.Controllers
             {
                 FunctionId = id.ToString(),
                 InvocationId = Guid.NewGuid().ToString(),
-                ResultSource = new TaskCompletionSource<string>()
+                ResultSource = new TaskCompletionSource<ScriptInvocationResult>()
             };
             _languageWorkerChannel.SendInvocationRequest(scriptInvocationContext);
             return scriptInvocationContext.ResultSource.Task;
