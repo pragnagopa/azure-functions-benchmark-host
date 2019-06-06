@@ -17,6 +17,7 @@ using TestGrpc.Messages;
 using GrpcMessages.Events;
 using MsgType = TestGrpc.Messages.StreamingMessage.ContentOneofCase;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace GrpcAspNet
 {
@@ -97,19 +98,40 @@ namespace GrpcAspNet
                 throw new Exception($"Failed to start Language Worker Channel for language", ex);
             }
         }
+
         internal void SendInvocationRequest(ScriptInvocationContext context)
         {
             _logger.LogInformation($"sending invocation request id: {context.InvocationId}");
+            
             InvocationRequest invocationRequest = new InvocationRequest()
             {
                 FunctionId = context.FunctionId,
-                InvocationId = context.InvocationId
+                InvocationId = context.InvocationId,
             };
+
+            var headers = new HeaderDictionary();
+            headers.Add("content-type", "application/json");
+            HttpRequest request = Utilities.CreateHttpRequest("GET", "http://localhost/api/httptrigger-scenarios", headers);
+            invocationRequest.InputData.Add(new ParameterBinding()
+            {
+                Name = "testHttpRequest",
+                Data = request.ToRpc()
+            });
             _executingInvocations.TryAdd(invocationRequest.InvocationId, context);
             SendStreamingMessage(new StreamingMessage
             {
                 InvocationRequest = invocationRequest
             });
+        }
+
+        internal RpcHttp GetRpcHttp()
+        {
+            RpcHttp rpcHttp = new RpcHttp()
+            {
+
+            };
+
+            return rpcHttp;
         }
 
         internal void WriteInvocationRequest(RpcWriteContext context)

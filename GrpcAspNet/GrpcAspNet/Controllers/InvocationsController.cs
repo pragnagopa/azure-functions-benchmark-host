@@ -41,14 +41,14 @@ namespace GrpcAspNet.Controllers
             {
                 _languageWorkerChannel = _functionDispatcher.WorkerChannel;
             }
-            ScriptInvocationContext invocationContext = new ScriptInvocationContext()
+            ScriptInvocationContext scriptInvocationContext = new ScriptInvocationContext()
             {
                 FunctionId = id.ToString(),
                 InvocationId = Guid.NewGuid().ToString(),
                 ResultSource = new TaskCompletionSource<string>()
             };
-            _languageWorkerChannel.SendInvocationRequest(invocationContext);
-            return invocationContext.ResultSource.Task;
+            _languageWorkerChannel.SendInvocationRequest(scriptInvocationContext);
+            return scriptInvocationContext.ResultSource.Task;
         }
 
         // POST: api/Invocations
