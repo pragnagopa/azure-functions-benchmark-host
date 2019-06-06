@@ -2,10 +2,13 @@
 /GrpcAspNet/GrpcAspNet/obj/*
 /GrpcAspNet/GrpcAspNet/bin/*
 /GrpcAspNet/*/bin/Debug/*
+/GrpcAspNet/*/node_modules/*
 /GrpcAspNet/*/obj/*
 /GrpcAspNet/GrpcMessages/bin/*
 /GrpcAspNet/GrpcServer/bin/*
 /GrpcAspNet/TestClient/bin/*
+/GrpcAspNet/NodeTestClient/dist/*
+/GrpcAspNet/NodeTestClient/azure-functions-language-worker-protobuf/rpc*
 /GrpcAspNet/GrpcAspNet/Properties/PublishProfiles/*
 /GrpcAspNet/GrpcAspNet/Properties/PublishProfiles/pgopaGrpcAspNetBigPlan - Web Deploy.pubxml.user
 /GrpcAspNet/GrpcAspNet/GrpcAspNet.csproj.user
