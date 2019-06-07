@@ -68,8 +68,6 @@ namespace GrpcAspNet
                 .ObserveOn(new NewThreadScheduler())
                 .Subscribe((msg) => InvokeResponse(msg.Message.InvocationResponse)));
 
-            
-
             StartProcess();
         }
 
@@ -82,13 +80,27 @@ namespace GrpcAspNet
         internal void StartProcess()
         {
             string clientPath = Environment.GetEnvironmentVariable("GrpcClient");
+            string clientCodePath = Environment.GetEnvironmentVariable("GrpcClientCode");
             try
             {
-                ProcessStartInfo startInfo = new ProcessStartInfo()
+                ProcessStartInfo startInfo;
+                if (string.IsNullOrEmpty(clientCodePath))
                 {
-                    FileName = $"{clientPath}",
-                    Arguments = $"{ _serverUri.ToString()} {_workerId}"
-                };
+                    startInfo = new ProcessStartInfo()
+                    {
+                        FileName = $"{clientPath}",
+                        Arguments = $"{ _serverUri.ToString()} {_workerId}"
+                    };
+                }
+                else
+                {
+                    startInfo = new ProcessStartInfo()
+                    {
+                        FileName = $"{clientPath}",
+                        Arguments = $"{clientCodePath} --serverUri { _serverUri.ToString()} --workerId {_workerId}"
+                    };
+                }
+
                 _process = new Process();
                 _process.StartInfo = startInfo;
                 _process.Start();

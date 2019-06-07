@@ -1,0 +1,27 @@
+{
+  "name": "nodetestclient",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "clean": "rimraf dist && rimraf azure-functions-language-worker-protobuf/rpc*",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf dist && npm run gen && shx mkdir -p dist/azure-functions-language-worker-protobuf && shx cp azure-functions-language-worker-protobuf/rpc.* dist/azure-functions-language-worker-protobuf/. && tsc",
+    "build-nomaps": "npm run build -- --sourceMap false",
+    "gen": "node scripts/generateProtos.js"
+  },
+  "dependencies": {
+    "google-protobuf": "^3.6.1",
+    "grpc": "^1.18.0",
+    "minimist": "^1.2.0",
+    "protobufjs": "^6.8.8"
+  },
+  "devDependencies": {
+    "rimraf": "^2.6.3",
+    "typescript": "^2.9.1",
+    "shx": "^0.2.2",
+    "readdirp": "^3.0.2"
+  },
+  "author": "",
+  "license": "ISC"
+}
