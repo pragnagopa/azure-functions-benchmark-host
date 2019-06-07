@@ -16,10 +16,12 @@
 - Open project in Visual Studio
 - Build
 - Open command prompt and go to GrpcAspNet\NodeTestClient
-  - Run `npm install`, `npm run build`, and `npm prune`
+  - Run `./package.ps1`
 - Open debug options for GrpcAspNet project
   - Add Environement Variable `GrpcClient` with Value `node`
-  - Add Environement Variable `GrpcClientCode` with Value `GrpcAspNet\NodeTestClient\dist\src\nodejsWorker.js`
+  - Add Environement Variable `GrpcClientCode` with Value `..\NodeTestClient\pkg\nodejsWorker.js`
+
+The contents for the Node.js client that need to be deployed are all in "pkg"
 
 ### How to run on Azure:
 - Open projec in visual studio

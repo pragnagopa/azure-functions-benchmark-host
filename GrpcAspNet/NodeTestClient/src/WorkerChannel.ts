@@ -72,7 +72,7 @@ export class WorkerChannel implements IWorkerChannel {
     }
 
     // Code that hard code loads a function and executes it.
-    let myFunction = require('./functionapp/functionCode.js');
+    let myFunction = require('./functionCode.js');
     myFunction(functionInputs).then((returnResult) => {
         let httpResponse = toRpcHttp(returnResult);
 
