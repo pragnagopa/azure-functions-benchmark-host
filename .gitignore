@@ -8,6 +8,7 @@
 /GrpcAspNet/GrpcServer/bin/*
 /GrpcAspNet/TestClient/bin/*
 /GrpcAspNet/NodeTestClient/dist/*
+/GrpcAspNet/NodeTestClient/pkg/*
 /GrpcAspNet/NodeTestClient/azure-functions-language-worker-protobuf/rpc*
 /GrpcAspNet/GrpcAspNet/Properties/PublishProfiles/*
 /GrpcAspNet/GrpcAspNet/Properties/PublishProfiles/pgopaGrpcAspNetBigPlan - Web Deploy.pubxml.user
