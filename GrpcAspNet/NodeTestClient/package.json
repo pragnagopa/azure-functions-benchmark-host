@@ -6,9 +6,9 @@
   "scripts": {
     "clean": "rimraf dist && rimraf azure-functions-language-worker-protobuf/rpc*",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rimraf dist && npm run gen && shx mkdir -p dist/azure-functions-language-worker-protobuf && shx cp azure-functions-language-worker-protobuf/rpc.* dist/azure-functions-language-worker-protobuf/. && tsc",
+    "build": "rimraf dist && shx mkdir azure-functions-language-worker-protobuf && shx mkdir -p dist/azure-functions-language-worker-protobuf && npm run gen && shx cp azure-functions-language-worker-protobuf/rpc.* dist/azure-functions-language-worker-protobuf/. && tsc",
     "build-nomaps": "npm run build -- --sourceMap false",
-    "gen": "node scripts/generateProtos.js"
+    "gen": "node generateProtos.js"
   },
   "dependencies": {
     "google-protobuf": "^3.6.1",
