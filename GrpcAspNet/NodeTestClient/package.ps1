@@ -7,7 +7,7 @@ function StopOnFailedExecution {
 }
 
 npm install
-npm run build-nomaps 
+npm run build 
 remove-item pkg -Recurse -ErrorAction Ignore
 mkdir ./pkg/deps/grpc/etc/
 mkdir ./pkg/grpc/
