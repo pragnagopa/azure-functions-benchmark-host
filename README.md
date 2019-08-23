@@ -52,9 +52,8 @@ The contents for the Node.js client that need to be deployed are all in "pkg"
 - Right click GrpcAspNet project and select Publish 
 - Open Kudu 
  - Copy GrpcAspNet\TestClient\NodeTestClient\pkg\nodejsWorker.js to D:\Home\NodeClient\
- - Add AppSetting key GrpcClient` with Value `node`
- - Add AppSetting Variable `GrpcClientCode` with Value ` D:\Home\NodeClient\nodejsWorker.js`
- 
+- Add AppSetting key `GrpcClient` with Value `node`
+- Add AppSetting Variable `GrpcClientCode` with Value `D:\Home\NodeClient\nodejsWorker.js` 
 - Restart the App.
 
 ### How to run on Azure Java Client:
@@ -65,7 +64,7 @@ The contents for the Node.js client that need to be deployed are all in "pkg"
 - Right click GrpcAspNet project and select Publish 
 - Open Kudu 
  - Copy GrpcAspNet\JavaTestClient\azurefunctionsjavaworker\target\azure-functions-java-worker-1.5.0.jar to D:\Home\JavaClient\
- - Add AppSetting key GrpcClient` with Value `java`
- - Add AppSetting Variable `GrpcClientCode` with Value ` D:\Home\JavaClient\azure-functions-java-worker-1.5.0.jar`
+ - Add AppSetting key `GrpcClient` with Value `java`
+ - Add AppSetting Variable `GrpcClientCode` with Value `D:\Home\JavaClient\azure-functions-java-worker-1.5.0.jar`
 - Restart the App.
 
