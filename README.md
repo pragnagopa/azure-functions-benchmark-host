@@ -51,7 +51,7 @@ The contents for the Node.js client that need to be deployed are all in "pkg"
   - Run `./package.ps1`
 - Right click GrpcAspNet project and select Publish 
 - Open Kudu 
- - Copy GrpcAspNet\TestClient\NodeTestClient\pkg\nodejsWorker.js to D:\Home\NodeClient\
+ - Copy GrpcAspNet\TestClient\NodeTestClient\pkg\ folder to D:\Home\NodeClient\
 - Add AppSetting key `GrpcClient` with Value `node`
 - Add AppSetting Variable `GrpcClientCode` with Value `D:\Home\NodeClient\nodejsWorker.js` 
 - Add AppSetting Variable 'WEBSITE_NODE_DEFAULT_VERSION' with value '10.15.2'
