@@ -19,3 +19,7 @@
 /GrpcAspNet/GrpcAspNet/Properties/PublishProfiles/pgopaGrpcAspNet - Web Deploy.pubxml
 /GrpcAspNet/GrpcAspNet/Properties/PublishProfiles/pgopaGrpcAspNet - Web Deploy.pubxml.user
 /GrpcAspNet/GrpcAspNet/Properties/launchSettings.json
+
+/GrpcAspNet/JavaTestClient/azurefunctionsjavaworker/target/*
+/GrpcAspNet/JavaTestClient/azurefunctionsjavaworker/.idea/*
+/GrpcAspNet/JavaTestClient/azurefunctionsjavaworker/*.iml

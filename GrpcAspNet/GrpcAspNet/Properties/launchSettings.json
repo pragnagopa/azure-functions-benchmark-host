@@ -19,9 +19,11 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "GrpcClient": "node",
-        "GrpcClientCode": "..\\NodeTestClient\\pkg\\nodejsWorker.js",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "GrpcClient_node": "node",
+        "GrpcClient": "java",
+        "GrpcClientCode": "..\\JavaTestClient\\azurefunctionsjavaworker\\target\\azure-functions-java-worker-1.5.0.jar",
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "GrpcClientCode_node": "..\\NodeTestClient\\pkg\\nodejsWorker.js"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     }
