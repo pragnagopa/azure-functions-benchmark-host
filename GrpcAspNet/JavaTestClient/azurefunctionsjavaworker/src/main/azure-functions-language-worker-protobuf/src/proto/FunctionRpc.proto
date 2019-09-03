@@ -1,0 +1,101 @@
+﻿syntax = "proto3";
+// protobuf vscode extension: https://marketplace.visualstudio.com/items?itemName=zxh404.vscode-proto3
+
+option java_multiple_files = true;
+option java_package = "com.microsoft.azure.functions.rpc.messages";
+option java_outer_classname = "FunctionProto";
+option csharp_namespace = "TestGrpc.Messages";
+option go_package ="github.com/Azure/azure-functions-go-worker/internal/rpc";
+
+package AzureFunctionsRpcMessages;
+
+// Interface exported by the server.
+service FunctionRpc {
+ rpc EventStream (stream StreamingMessage) returns (stream StreamingMessage) {}
+}
+
+message StreamingMessage {
+  // Used to identify message between host and worker
+  string request_id = 1;
+
+  // Payload of the message
+  oneof content {
+    // Worker initiates stream
+    StartStream start_stream = 20; 
+
+    // Host requests a given invocation
+    InvocationRequest invocation_request = 4;
+
+    // Worker responds to a given invocation
+    InvocationResponse invocation_response = 5;
+  }
+}
+
+// Worker sends the host information identifying itself
+message StartStream {
+  // id of the worker
+  string worker_id = 2;
+}
+
+// Host requests worker to invoke a Function
+message InvocationRequest {
+  // Unique id for each invocation
+  string invocation_id = 1;
+
+  // Unique id for each Function
+  string function_id = 2;
+
+   // Input bindings (include trigger)
+  repeated ParameterBinding input_data = 3;
+}
+
+// Used to describe a given binding on invocation
+message ParameterBinding {
+  // Name for the binding
+  string name = 1;
+
+  // Data for the binding
+  TypedData data = 2;
+}
+
+// Worker responds with status of Invocation
+message InvocationResponse {
+  // Unique id for invocation
+  string invocation_id = 1;
+
+  // Status of the invocation (success/failure/canceled)
+  string result = 3;
+
+  // data returned from Function (for $return and triggers with return support)
+  TypedData return_value = 4;
+}
+
+message TypedData {
+  oneof data {
+    string string = 1;
+    string json = 2;
+    bytes bytes = 3;
+    bytes stream = 4;
+    RpcHttp http = 5;
+	sint64 int = 6;
+    double double = 7;
+  }
+}
+
+message RpcHttp {
+  string method = 1;
+  string url = 2; 
+  map<string,string> headers = 3;
+  TypedData body = 4;
+  map<string,string> params = 10;
+  string status_code = 12;
+  map<string,string> query = 15;
+  bool enable_content_negotiation= 16;
+}
+
+
+
+
+
+
+

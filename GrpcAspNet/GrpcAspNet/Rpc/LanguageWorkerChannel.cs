@@ -92,6 +92,14 @@ namespace GrpcAspNet
                         Arguments = $"{ _serverUri.ToString()} {_workerId}"
                     };
                 }
+                else if (clientPath == "java")
+                {
+                    startInfo = new ProcessStartInfo()
+                    {
+                        FileName = $"{clientPath}",
+                        Arguments = @"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -jar " + $"{clientCodePath} { _serverUri.ToString()}  {_workerId}"
+                    };
+                }
                 else
                 {
                     startInfo = new ProcessStartInfo()
